@@ -12,8 +12,6 @@ GameWorld* createStudentWorld(string assetPath)
 	return new StudentWorld(assetPath);
 }
 
-// Students:  Add code to this file, StudentWorld.h, Actor.h and Actor.cpp
-
 StudentWorld::StudentWorld(string assetPath)
 : GameWorld(assetPath)
 {
@@ -23,25 +21,24 @@ StudentWorld::StudentWorld(string assetPath)
 /*Sets the stage with all the actors in the correct places*/
 int StudentWorld::init() 
 {
-	string myLevel = to_string(getLevel());
+	string myLevel = to_string(getLevel());			//stores the level into myLevel
 	string levelFile = "level0" + myLevel +".txt"; 
 	Level lev(assetPath());
-	Level::LoadResult result = lev.loadLevel(levelFile);  
+	Level::LoadResult result = lev.loadLevel(levelFile);		//loads the correct level file
 	if (result == Level::load_fail_file_not_found)   
 		cerr << "Could not find level data file" << endl;  
 	else if (result == Level::load_fail_bad_format)   
 		cerr << "Your level was improperly formatted" << endl;  
 	else if (result == Level::load_success)
 	{
-	Actor* addMe;			//pointer to add actors
+	Actor* addMe;								//pointer to dynamically add actors
 	cerr << "Successfully loaded level" << endl;
 	Level::MazeEntry ge;
-	for (int col = 0; col < 16; col++)
+	for (int col = 0; col < 16; col++)		//goes through each position in the level data files
 	{
 		for (int row = 0; row < 16; row++)
 		{
 			ge = lev.getContentsOf(col, row);
-			/************check if dir right is 0********************************************************/
 			switch (ge)
 			{
 			case Level::empty:  //do nothing
@@ -79,13 +76,11 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-	// This code is here merely to allow the game to build, run, and terminate after you hit enter.
-	// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
-	list<Actor*>::iterator it = m_myActors.begin();
-	m_penelope->doSomething();
+	list<Actor*>::iterator it = m_myActors.begin();	//iterator for each item in m_myActors
+	m_penelope->doSomething();	//calls penelope's do something
 	while (it != m_myActors.end())
 	{
-		if (!(*it)->isDead())
+		if (!(*it)->isDead())		//if the actor is not dead
 			(*it)->doSomething();
 		it++;
 	}
@@ -95,7 +90,7 @@ int StudentWorld::move()
 		return GWSTATUS_FINISHED_LEVEL;
 		*/
 	it = m_myActors.begin();
-	while (it != m_myActors.end())
+	while (it != m_myActors.end())			//cleans up all actors that died that round
 	{
 		if ((*it)->isDead())
 		{
@@ -114,7 +109,7 @@ void StudentWorld::cleanUp()
 	list<Actor*>::iterator it = m_myActors.begin();
 	delete m_penelope;
 	m_penelope = nullptr;
-	while (it != m_myActors.end())
+	while (it != m_myActors.end())		//frees up the list of m_myActors
 	{
 		delete (*it);
 		*it = nullptr;
@@ -125,7 +120,8 @@ StudentWorld::~StudentWorld()
 {
 	cleanUp();
 }
-bool StudentWorld::canMove(int xPos, int yPos)
+/*checks if an object can move to the new position*/
+bool StudentWorld::canMove(int xPos, int yPos)		
 {
 	list<Actor*>::iterator it = m_myActors.begin();
 	while (it != m_myActors.end())
