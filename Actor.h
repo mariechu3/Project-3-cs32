@@ -12,14 +12,14 @@ public:
 	virtual void doSomething() = 0;
 	bool isDead();
 	void setDead();
-	bool canBlock();
-	bool isPerson();
+	virtual bool canBlock();
+	virtual bool isPerson();
 	virtual bool isZombie();
-	bool affectedByFlame();
+	virtual bool affectedByFlame();
 	virtual bool affectedByVomit();
 	virtual void setOffLandmine(){}
 	virtual void setInfected(bool yes) {}
-	bool infected(){}
+	//bool infected(){}
 	StudentWorld* getWorld();
 private:
 	bool m_dead;
@@ -39,6 +39,9 @@ public:
 	virtual bool infected();
 	int infectionCount();
 	virtual bool affectedByVomit();
+	virtual bool isPerson();
+	virtual bool canBlock();
+
 private:
 	bool m_infected;
 	int m_infectionCount;
@@ -81,6 +84,7 @@ public:
 	void frontCoord(double &xPos, double &yPos, Direction dir);
 	virtual bool isZombie();
 	virtual bool differentMovements() = 0;
+	virtual bool canBlock();
 private:
 	int m_paralysis;
 	int m_movement;
@@ -115,6 +119,7 @@ class Pit : public Actor
 public:
 	Pit(int startX, int startY, StudentWorld* myWorld);
 	virtual void doSomething();
+	virtual bool affectedByFlame();
 private:
 };
 class Flame : public Actor
@@ -122,6 +127,7 @@ class Flame : public Actor
 public:
 	Flame(int startX, int startY, Direction startDirection, StudentWorld* myWorld);
 	virtual void doSomething();
+	virtual bool affectedByFlame();
 private:
 	int m_lives;
 };
@@ -130,6 +136,7 @@ class Vomit : public Actor
 public:
 	Vomit(int startX, int startY, Direction startDirection, StudentWorld* myWorld);
 	virtual void doSomething();
+	virtual bool affectedByFlame();
 private:
 	int m_lives;
 };
@@ -167,6 +174,8 @@ class Wall : public Actor
 public:
 	Wall(int startX, int startY, StudentWorld* myWorld);
 	virtual void doSomething();
+	virtual bool canBlock();
+	virtual bool affectedByFlame();
 private:
 };
 class Exit : public Actor
@@ -174,6 +183,7 @@ class Exit : public Actor
 public:
 	Exit(int startX, int startY, StudentWorld* myWorld);
 	virtual void doSomething();	
+	virtual bool affectedByFlame();
 private:
 };
 #endif // ACTOR_H_

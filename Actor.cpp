@@ -25,11 +25,11 @@ StudentWorld* Actor::getWorld()
 }
 bool Actor::canBlock()
 {
-	return m_block;
+	return false;
 }
 bool Actor::isPerson()
 {
-	return m_exit;
+	return false;
 }
 bool Actor::isZombie()
 {
@@ -37,7 +37,7 @@ bool Actor::isZombie()
 }
 bool Actor::affectedByFlame()
 {
-	return m_flame;
+	return true;
 }
 bool Actor::affectedByVomit()
 {
@@ -48,6 +48,14 @@ Person::Person(const int imageID, int startX, int startY, StudentWorld* myWorld)
 {
 	m_infected = false;
 	m_infectionCount = 0;
+}
+bool Person::canBlock()
+{
+	return true;
+}
+bool Person::isPerson()
+{
+	return true;
 }
 bool Person::affectedByVomit()
 {
@@ -403,54 +411,73 @@ void Citizen::doSomething()
 				break;
 			}
 		}
-		else if (dist_z >= 80)
+	}
+	else if (dist_z <= 80)
+	{
+		double moveDistance = dist_z;
+		char move = ' ';
+		if (getWorld()->canMove(this, getX() + 2, getY()) && getWorld()->distanceFromZombie(getX() + 2, getY()) > moveDistance) //checks right
 		{
-			double moveDistance = dist_z;
-			if (getWorld()->canMove(this, getX() + 2, getY()) && getWorld()->distanceFromZombie(getX() + 2, getY()) < moveDistance)
-				moveDistance = getWorld()->distanceFromZombie(getX() + 2, getY());
-
-
+			moveDistance = getWorld()->distanceFromZombie(getX() + 2, getY());
+			move = 'r';
+		}
+		if (getWorld()->canMove(this, getX() + 2, getY()) && getWorld()->distanceFromZombie(getX() - 2, getY()) > moveDistance) //checks left
+		{
+			moveDistance = getWorld()->distanceFromZombie(getX() - 2, getY());
+			move = 'l';
+		}
+		if (getWorld()->canMove(this, getX() + 2, getY()) && getWorld()->distanceFromZombie(getX(), getY() + 2) > moveDistance) //checks up
+		{
+			moveDistance = getWorld()->distanceFromZombie(getX(), getY() + 2);
+			move = 'u';
+		}
+		if (getWorld()->canMove(this, getX() + 2, getY()) && getWorld()->distanceFromZombie(getX(), getY() - 2) > moveDistance) //checks down
+		{
+			moveDistance = getWorld()->distanceFromZombie(getX(), getY() - 2);
+			move = 'd';
+		}
+		if (moveDistance == dist_z)
+			return;
+		else
+		{
+			switch (move)
+			{
+			case 'r':
+				if (getWorld()->canMove(this, getX() + 2, getY()))
+				{
+					setDirection(right);
+					moveTo(getX() + 2, getY());
+					return;
+				}
+				break;
+			case'l':
+				if (getWorld()->canMove(this, getX() - 2, getY()))
+				{
+					setDirection(left);
+					moveTo(getX() - 2, getY());
+					return;
+				}
+				break;
+			case 'u':
+				if (getWorld()->canMove(this, getX(), getY() + 2))
+				{
+					setDirection(up);
+					moveTo(getX(), getY() + 2);
+					return;
+				}
+				break;
+			case'd':
+				if (getWorld()->canMove(this, getX(), getY() - 2))
+				{
+					setDirection(down);
+					moveTo(getX(), getY() - 2);
+					return;
+				}
+				break;
+			}
 		}
 	}
 }
-		/*
-		if (row!=0)
-		{
-			if (row == 1 && getWorld()->canMove(this, getX() + 2, getY()))
-			{
-				setDirection(right);
-				moveTo(getX() + 2, getY());
-			}
-			else if (row == -1 && getWorld()->canMove(this, getX() - 2, getY()))
-			{
-				setDirection(left);
-				moveTo(getX() - 2, getY());
-			}
-		}
-		else if(col!=0)
-		{
-			if (col == 1 && getWorld()->canMove(this, getX(), getY() + 2))
-			{
-				setDirection(up);
-				moveTo(getX(), getY() + 2);
-			}
-			else if (col == -1 && getWorld()->canMove(this, getX(), getY() - 2))
-			{
-				setDirection(down);
-				moveTo(getX(), getY() - 2);
-			}
-		}
-		else
-		{
-
-		}
-	}
-
-	else if (dist_z <= 80)
-	{
-
-	}
-	*/
 ///////////ZOMBIE FUNCTION IMPLEMENTATIONS///////////////////////
 Zombie::Zombie(int startX, int startY, StudentWorld* myWorld)
 	:Actor(IID_ZOMBIE, startX, startY, right, 0, true, false, true, myWorld)
@@ -461,6 +488,10 @@ Zombie::Zombie(int startX, int startY, StudentWorld* myWorld)
 int Zombie::getParalysis()
 {
 	return m_paralysis;
+}
+bool Zombie::canBlock()
+{
+	return true;
 }
 void Zombie::frontCoord(double &xPos, double &yPos, Direction dir)
 {
@@ -636,6 +667,10 @@ Pit::Pit(int startX, int startY, StudentWorld* myWorld)
 	: Actor(IID_PIT, startX, startY, right, 0 , false, false, false, myWorld)
 {
 }
+bool Pit::affectedByFlame()
+{
+	return false;
+}
 void Pit::doSomething() 
 {
 	getWorld()->dieByPitOrFlame(getX(), getY());
@@ -645,6 +680,10 @@ Flame::Flame(int startX, int startY, Direction startDirection, StudentWorld* myW
 	: Actor(IID_FLAME, startX, startY, startDirection, 0, false, false, false, myWorld)
 {
 	m_lives = 2;
+}
+bool Flame::affectedByFlame()
+{
+	return false;
 }
 void Flame::doSomething()
 {
@@ -663,6 +702,10 @@ Vomit::Vomit(int startX, int startY, Direction startDirection, StudentWorld* myW
 	: Actor(IID_VOMIT, startX, startY, startDirection, 0, false, false, false, myWorld)
 {
 	m_lives = 2;
+}
+bool Vomit::affectedByFlame()
+{
+	return false;
 }
 void Vomit::doSomething() 
 {
@@ -727,12 +770,24 @@ Wall::Wall(int startX, int startY, StudentWorld* myWorld)
 {
 
 }
+bool Wall::canBlock()
+{
+	return true;
+}
+bool Wall::affectedByFlame()
+{
+	return false;
+}
 void Wall::doSomething() {};
 ////////////////EXIT IMPLEMENTATIONS////////////////////
 Exit::Exit(int startX, int startY, StudentWorld* myWorld)
 	:Actor(IID_EXIT, startX, startY, right, 1, false, false, false, myWorld)
 {
 
+}
+bool Exit::affectedByFlame()
+{
+	return false;
 }
 void Exit::doSomething() 
 {		

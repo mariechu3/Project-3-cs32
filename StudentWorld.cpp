@@ -307,11 +307,11 @@ double StudentWorld::distanceFromZombie(double xPos, double yPos)
 	list<Actor*>::iterator it = m_myActors.begin();
 	while (it != m_myActors.end())
 	{
-		if ((*it)->isZombie() && distance(*it, xPos, yPos) < min)
+		if ((*it)->isZombie() && distance((*it), xPos, yPos) < min)
 			min = distance(*it, xPos, yPos);
 		it++;
 	}
-	return 1000;
+	return min;
 }
 bool StudentWorld::stepOnLandmine(double xPos, double yPos)
 {
