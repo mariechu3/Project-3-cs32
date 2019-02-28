@@ -258,9 +258,43 @@ void Citizen::doSomething()
 	double dist_z = getWorld()->distanceFromZombie(this);
 	if (dist_p < dist_z && dist_p <= 80)
 	{
-		int row = getWorld()->sameRowAsP(this);
-		int col = getWorld()->sameColAsP(this);
-		if (row!=0)	
+		char row = getWorld()->rowCitMove(this);
+		char col = getWorld()->colCitMove(this);
+		switch (row)
+		{
+		case 'r':
+			if (getWorld()->canMove(this, getX() + 2, getY()))
+			{
+				setDirection(right);
+				moveTo(getX() + 2, getY());
+			}
+			break;
+		case'l':
+			if (getWorld()->canMove(this, getX() - 2, getY()))
+			{
+				setDirection(left);
+				moveTo(getX() - 2, getY());
+			}
+			break;
+		}
+		switch (col)
+		{
+		case 'u':
+			if (getWorld()->canMove(this, getX(), getY() + 2))
+			{
+				setDirection(up);
+				moveTo(getX(), getY() + 2);
+			}
+			break;
+		case'd':
+			if (getWorld()->canMove(this, getX(), getY() - 2))
+			{
+				setDirection(down);
+				moveTo(getX(), getY() - 2);
+			}
+			break;
+		}/*
+		if (row!=0)
 		{
 			if (row == 1 && getWorld()->canMove(this, getX() + 2, getY()))
 			{
@@ -286,6 +320,17 @@ void Citizen::doSomething()
 				moveTo(getX(), getY() - 2);
 			}
 		}
+		else
+		{
+
+		}
+	}
+
+	else if (dist_z <= 80)
+	{
+
+	}
+	*/
 	}
 
 }
