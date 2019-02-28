@@ -33,7 +33,10 @@ public:
 	void infect(double xPos, double yPos);
 	bool ifPersonInFront(double xPos, double yPos);
 	double distance(Actor* one, Actor*two);
-     //do i create a destructor by myself
+	double distanceFromPene(Actor* two);
+	double distanceFromZombie(Actor* two);
+	int sameRowAsP(Actor* two);
+	int sameColAsP(Actor* two);
 	~StudentWorld();
 
 private:

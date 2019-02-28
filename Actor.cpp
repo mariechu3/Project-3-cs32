@@ -254,7 +254,39 @@ void Citizen::doSomething()
 	m_paralysis++;
 	if (m_paralysis % 2 == 1)
 		return;
-	
+	double dist_p = getWorld()->distanceFromPene(this);
+	double dist_z = getWorld()->distanceFromZombie(this);
+	if (dist_p < dist_z && dist_p <= 80)
+	{
+		int row = getWorld()->sameRowAsP(this);
+		int col = getWorld()->sameColAsP(this);
+		if (row!=0)	
+		{
+			if (row == 1 && getWorld()->canMove(this, getX() + 2, getY()))
+			{
+				setDirection(right);
+				moveTo(getX() + 2, getY());
+			}
+			else if (row == -1 && getWorld()->canMove(this, getX() - 2, getY()))
+			{
+				setDirection(left);
+				moveTo(getX() - 2, getY());
+			}
+		}
+		else if(col!=0)
+		{
+			if (col == 1 && getWorld()->canMove(this, getX(), getY() + 2))
+			{
+				setDirection(up);
+				moveTo(getX(), getY() + 2);
+			}
+			else if (col == -1 && getWorld()->canMove(this, getX(), getY() - 2))
+			{
+				setDirection(down);
+				moveTo(getX(), getY() - 2);
+			}
+		}
+	}
 
 }
 ///////////ZOMBIE FUNCTION IMPLEMENTATIONS///////////////////////

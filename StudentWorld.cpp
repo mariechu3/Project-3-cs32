@@ -3,6 +3,7 @@
 #include "GraphObject.h"
 #include "Actor.h"
 #include "Level.h"
+#include <math.h>
 #include <sstream>
 #include <iomanip>
 #include <string>
@@ -210,6 +211,8 @@ bool StudentWorld::canMove(Actor* src, double xPos, double yPos)
 		it++;
 	}
 	/*implement if they were to run into penelope*/
+	if (src != m_penelope && touching(m_penelope, xPos, yPos) && !m_penelope->isDead())
+		return false;
 	return true;
 }
 bool StudentWorld::touching(Actor* a1, double xPos, double yPos)
@@ -298,7 +301,23 @@ double StudentWorld::distance(Actor* one, Actor* two)
 	double y2 = two->getY() + ((SPRITE_HEIGHT - 1) / 2);
 	double dx = x1 - x2;
 	double dy = y1 - y2;
-	return (dx*dx) + (dy*dy);
+	return sqrt((dx*dx) + (dy*dy));
+}
+double StudentWorld::distanceFromPene(Actor*two)
+{
+	return distance(m_penelope, two);
+}
+double StudentWorld::distanceFromZombie(Actor*two)
+{
+	double min = 1000;
+	list<Actor*>::iterator it = m_myActors.begin();
+	while (it != m_myActors.end())
+	{
+		if ((*it)->isZombie() && distance(*it, two) < min)
+			min = distance(*it, two);
+		it++;
+	}
+	return 1000;
 }
 bool StudentWorld::stepOnLandmine(double xPos, double yPos)
 {
@@ -325,6 +344,7 @@ bool StudentWorld::dieByPitOrFlame(double xPos, double yPos)
 			if ((*it)->isPerson())
 			{
 				increaseScore(-1000);
+				playSound(SOUND_CITIZEN_DIE);
 			}
 			else if ((*it)->isZombie())
 			{
@@ -385,6 +405,28 @@ void StudentWorld::addActor(char type, int startX, int startY, Direction dir, St
 		break;
 	}
 	
+}
+int StudentWorld::sameRowAsP(Actor* two)
+{
+	if (two->getY() == m_penelope->getY())
+	{
+		if (two->getX() < m_penelope->getX())
+			return 1; // means penelope is to the right
+		else
+			return -1; // means on the left
+	}
+	return 0;
+}
+int StudentWorld::sameColAsP(Actor* two)
+{
+	if (two->getX() == m_penelope->getX())
+	{
+		if (two->getY() < m_penelope->getY())
+			return 1; // means penelope above
+		else
+			return -1; // means penelope below
+	}
+	return 0;
 }
 void StudentWorld::increaseCount(int add, char type)
 {
