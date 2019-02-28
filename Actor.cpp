@@ -5,7 +5,7 @@
 using namespace std;
 
 ///////ACTOR FUNCTION IMPLEMENTATIONS////////////////
-Actor::Actor(const int imageID, int startX, int startY, Direction startDirection, int depth, StudentWorld* myWorld)
+Actor::Actor(const int imageID, double startX, double startY, Direction startDirection, int depth, StudentWorld* myWorld)
 	:GraphObject(imageID, startX, startY, startDirection, depth), m_dead(false), m_world(myWorld) {}
 bool Actor::isDead()
 {
@@ -46,7 +46,7 @@ void Actor::death()
 	setDead();		//most actors just die when they are killed
 }
 //////////////////////////////////PERSON IMPLEMENTATIONS//////////////////////////////////////////
-Person::Person(const int imageID, int startX, int startY, StudentWorld* myWorld)
+Person::Person(const int imageID, double startX, double startY, StudentWorld* myWorld)
 	:Actor(imageID, startX, startY, right, 0, myWorld)
 {
 	m_infected = false;
@@ -81,7 +81,7 @@ bool Person::infected()
 	return m_infected;
 }
 ////////////PENELOPE FUNCTION IMPLEMENTATIONS//////////////////////
-Penelope::Penelope(int startX, int startY, StudentWorld* myWorld)
+Penelope::Penelope(double startX, double startY, StudentWorld* myWorld)
 	:Person(IID_PLAYER, startX, startY, myWorld)
 {
 	m_landmine = 0; 
@@ -223,7 +223,7 @@ void Penelope::doSomething()
 	}
 }
 ////////////CITIZEN IMPLEMENTATIONS///////////////////////////////////
-Citizen::Citizen(int startX, int startY, StudentWorld* myWorld)
+Citizen::Citizen(double startX, double startY, StudentWorld* myWorld)
 	: Person(IID_CITIZEN, startX, startY, myWorld)
 {
 	m_paralysis = 0;
@@ -479,7 +479,7 @@ void Citizen::doSomething()
 	}
 }
 ///////////ZOMBIE FUNCTION IMPLEMENTATIONS///////////////////////
-Zombie::Zombie(int startX, int startY, StudentWorld* myWorld)
+Zombie::Zombie(double startX, double startY, StudentWorld* myWorld)
 	:Actor(IID_ZOMBIE, startX, startY, right, 0, myWorld)
 {
 	m_paralysis = 0;
@@ -601,7 +601,7 @@ void Zombie::doSomething()
 	}
 
 };
-DumbZombie::DumbZombie(int startX, int startY, StudentWorld* myWorld)
+DumbZombie::DumbZombie(double startX, double startY, StudentWorld* myWorld)
 	:Zombie(startX, startY, myWorld)
 {
 }
@@ -638,7 +638,7 @@ bool DumbZombie::differentMovements()
 {
 	return false;
 }
-SmartZombie::SmartZombie(int startX, int startY, StudentWorld* myWorld)
+SmartZombie::SmartZombie(double startX, double startY, StudentWorld* myWorld)
 	:Zombie(startX, startY, myWorld)
 {
 
@@ -653,8 +653,8 @@ bool SmartZombie::differentMovements()
 {
 	double xCoor = 0;
 	double yCoor = 0;
-	int p_dist = getWorld()->distanceFromPene(getX(), getY()); // find the distance to penelope
-	int c_dist = getWorld()->distanceFromPerson(getX(), getY(),xCoor,yCoor); //find the distance to the nearest citizen
+	double p_dist = getWorld()->distanceFromPene(getX(), getY()); // find the distance to penelope
+	double c_dist = getWorld()->distanceFromPerson(getX(), getY(),xCoor,yCoor); //find the distance to the nearest citizen
 	if (c_dist < p_dist)	//if the distance to a citizen is closer
 		p_dist = c_dist;	//set p_dist to it
 	if (p_dist > 80)	//if the distance to the nearest person is larger than 80
@@ -782,9 +782,10 @@ bool SmartZombie::differentMovements()
 
 		}
 	}
+	return false;
 }
 ////////////////LANDMINE IMPLEMENTATIONS////////////////////
-Landmine::Landmine(int startX, int startY, StudentWorld* myWorld)
+Landmine::Landmine(double startX, double startY, StudentWorld* myWorld)
 	: Actor(IID_LANDMINE, startX, startY, right, 1, myWorld)
 {
 	active = false;
@@ -827,7 +828,7 @@ void Landmine::setOffLandmine()
 	active = false;
 }
 ////////////////PIT IMPLEMENTATIONS////////////////////
-Pit::Pit(int startX, int startY, StudentWorld* myWorld)
+Pit::Pit(double startX, double startY, StudentWorld* myWorld)
 	: Actor(IID_PIT, startX, startY, right, 0 , myWorld)
 {
 }
@@ -844,7 +845,7 @@ void Pit::doSomething()
 	getWorld()->dieByPitOrFlame(getX(), getY()); //checks if anything overlaps with it
 };
 ////////////////FLAME IMPLEMENTATIONS////////////////////
-Flame::Flame(int startX, int startY, Direction startDirection, StudentWorld* myWorld)
+Flame::Flame(double startX, double startY, Direction startDirection, StudentWorld* myWorld)
 	: Actor(IID_FLAME, startX, startY, startDirection, 0, myWorld)
 {
 	m_lives = 2;
@@ -866,7 +867,7 @@ void Flame::doSomething()
 	getWorld()->dieByPitOrFlame(getX(), getY());	//checks if anything overlaps with it
 };
 ////////////////VOMIT IMPLEMENTATIONS////////////////////
-Vomit::Vomit(int startX, int startY, Direction startDirection, StudentWorld* myWorld)
+Vomit::Vomit(double startX, double startY, Direction startDirection, StudentWorld* myWorld)
 	: Actor(IID_VOMIT, startX, startY, startDirection, 0, myWorld)
 {
 	m_lives = 2;
@@ -888,7 +889,7 @@ void Vomit::doSomething()
 	getWorld()->infect(getX(), getY()); // infect people if there are any overlapping it
 };
 ////////////////GOODIES IMPLEMENTATIONS////////////////////
-Goodies::Goodies(const int imageID, int startX, int startY, StudentWorld* myWorld)
+Goodies::Goodies(const int imageID, double startX, double startY, StudentWorld* myWorld)
 	: Actor(imageID, startX, startY, right, 1, myWorld)
 {
 
@@ -905,7 +906,7 @@ void Goodies::doSomething()
 		addCount();	//increases penelopes count for whichever goodie respectively
 	}
 };
-VaccineGoodies::VaccineGoodies(int const imageID, int startX, int startY, StudentWorld* myWorld)
+VaccineGoodies::VaccineGoodies(int const imageID, double startX, double startY, StudentWorld* myWorld)
 	: Goodies(imageID, startX, startY, myWorld)
 {
 
@@ -914,7 +915,7 @@ void VaccineGoodies::addCount()
 {
 	getWorld()->increaseCount(1, 'v');	
 };
-GasCanGoodies::GasCanGoodies(int const imageID, int startX, int startY, StudentWorld* myWorld)
+GasCanGoodies::GasCanGoodies(int const imageID, double startX, double startY, StudentWorld* myWorld)
 	: Goodies(imageID, startX, startY, myWorld)
 {
 
@@ -923,7 +924,7 @@ void GasCanGoodies::addCount()
 {
 	getWorld()->increaseCount(5, 'f');
 };
-LandmineGoodies::LandmineGoodies(int const imageID, int startX, int startY, StudentWorld* myWorld)
+LandmineGoodies::LandmineGoodies(int const imageID, double startX, double startY, StudentWorld* myWorld)
 	: Goodies(imageID, startX, startY, myWorld)
 {
 }
@@ -932,7 +933,7 @@ void LandmineGoodies::addCount()
 	getWorld()->increaseCount(2, 'l');
 }
 ////////////////WALL IMPLEMENTATIONS////////////////////
-Wall::Wall(int startX, int startY, StudentWorld* myWorld)
+Wall::Wall(double startX, double startY, StudentWorld* myWorld)
 	: Actor(IID_WALL, startX, startY, right, 0, myWorld)
 {
 
@@ -947,7 +948,7 @@ bool Wall::affectedByFlame()
 }
 void Wall::doSomething() {};
 ////////////////EXIT IMPLEMENTATIONS////////////////////
-Exit::Exit(int startX, int startY, StudentWorld* myWorld)
+Exit::Exit(double startX, double startY, StudentWorld* myWorld)
 	:Actor(IID_EXIT, startX, startY, right, 1, myWorld)
 {
 

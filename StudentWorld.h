@@ -22,7 +22,7 @@ public:
 	void increaseCount(int add, char type);			//increases the count of goodies penelope obtained
 	int citizenCount();		//checks how many citizens are left
 
-	void addActor(char type, int startX, int startY, Direction dir, StudentWorld* myWorld);		//creates a new actor in the world
+	void addActor(char type, double startX, double startY, Direction dir, StudentWorld* myWorld);		//creates a new actor in the world
 
 	bool touching(Actor* a1, double xPos, double yPos);		//checks if objects are touching
 	bool overlapsPene(double xPos, double yPos);			//checks if object overlaps penelope

@@ -176,7 +176,7 @@ StudentWorld::~StudentWorld()
 {
 	cleanUp();
 }
-void StudentWorld::addActor(char type, int startX, int startY, Direction dir, StudentWorld* myWorld)
+void StudentWorld::addActor(char type, double startX, double startY, Direction dir, StudentWorld* myWorld)
 {
 	Actor* addme;
 	switch (type)
@@ -434,6 +434,7 @@ char StudentWorld::rowMoveToP(Actor* two)
 		return 'd';
 	else if (two->getX() > m_penelope->getX()) //find relative direction of where penelope is (to the left)
 		return 'a';
+	return ' ';
 }
 char StudentWorld::colMoveToP(Actor* two)
 {
@@ -448,5 +449,6 @@ char StudentWorld::colMoveToP(Actor* two)
 		return 'w';
 	else if (two->getY() > m_penelope->getY()) //means penelope is relatively below
 		return 's';
+	return ' ';
 }
 

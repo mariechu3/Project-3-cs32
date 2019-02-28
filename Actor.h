@@ -8,7 +8,7 @@ class StudentWorld;
 class Actor :public GraphObject
 {
 public:
-	Actor(const int imageID, int startX, int startY, Direction startDirection, int depth, StudentWorld* myWorld);
+	Actor(const int imageID, double startX, double startY, Direction startDirection, int depth, StudentWorld* myWorld);
 	virtual void doSomething() = 0;
 	bool isDead();		//checks if actor is dead
 	void setDead();			//sets Actor to dead
@@ -27,7 +27,7 @@ private:
 class Person : public Actor
 {
 public:
-	Person(const int imageID, int startX, int startY, StudentWorld* myWorld);
+	Person(const int imageID, double startX, double startY, StudentWorld* myWorld);
 	virtual void setInfected(bool yes);
 	void addInfection();	//increases infection count by 1
 	void setInfectionBack();	//sets infection count to 0
@@ -43,7 +43,7 @@ private:
 class Penelope : public Person
 {
 public:
-	Penelope(int startX, int startY, StudentWorld* myWorld);
+	Penelope(double startX, double startY, StudentWorld* myWorld);
 	virtual void doSomething();
 	void addNumLand(int add);	//increases her landmine count
 	int numLandmine();	//return her landmine count
@@ -62,7 +62,7 @@ private:
 class Citizen : public Person
 {
 public:
-	Citizen(int startX, int startY, StudentWorld* myWorld);
+	Citizen(double startX, double startY, StudentWorld* myWorld);
 	virtual void doSomething();
 	virtual void setInfected(bool yes);
 	virtual void death();
@@ -73,7 +73,7 @@ private:
 class Zombie : public Actor
 {
 public:
-	Zombie(int startX, int startY, StudentWorld* myWorld);
+	Zombie(double startX, double startY, StudentWorld* myWorld);
 	virtual void doSomething();
 	void frontCoord(double &xPos, double &yPos, Direction dir); //checks what the planned position of the zombie would be
 	virtual bool isZombie();
@@ -86,7 +86,7 @@ private:
 class DumbZombie : public Zombie
 {
 public:
-	DumbZombie(int startX, int startY, StudentWorld* myWorld);
+	DumbZombie(double startX, double startY, StudentWorld* myWorld);
 	virtual bool differentMovements();
 	virtual void death();
 private:
@@ -94,7 +94,7 @@ private:
 class SmartZombie : public Zombie
 {
 public:
-	SmartZombie(int startX, int startY, StudentWorld* myWorld);
+	SmartZombie(double startX, double startY, StudentWorld* myWorld);
 	virtual bool differentMovements();
 	virtual void death();
 private:
@@ -102,7 +102,7 @@ private:
 class Landmine : public Actor
 {
 public:
-	Landmine(int startX, int startY, StudentWorld* myWorld);
+	Landmine(double startX, double startY, StudentWorld* myWorld);
 	virtual void doSomething();
 	void setOffLandmine();	//triggers the landmine/creates flames and pit/etc.
 	virtual void death();
@@ -114,7 +114,7 @@ private:
 class Pit : public Actor
 {
 public:
-	Pit(int startX, int startY, StudentWorld* myWorld);
+	Pit(double startX, double startY, StudentWorld* myWorld);
 	virtual void doSomething();
 	virtual bool affectedByFlame();
 	virtual bool blockFlame();
@@ -123,7 +123,7 @@ private:
 class Flame : public Actor
 {
 public:
-	Flame(int startX, int startY, Direction startDirection, StudentWorld* myWorld);
+	Flame(double startX, double startY, Direction startDirection, StudentWorld* myWorld);
 	virtual void doSomething();
 	virtual bool affectedByFlame();
 private:
@@ -132,7 +132,7 @@ private:
 class Vomit : public Actor
 {
 public:
-	Vomit(int startX, int startY, Direction startDirection, StudentWorld* myWorld);
+	Vomit(double startX, double startY, Direction startDirection, StudentWorld* myWorld);
 	virtual void doSomething();
 	virtual bool affectedByFlame();
 private:
@@ -141,7 +141,7 @@ private:
 class Goodies : public Actor
 {
 public:
-	Goodies(const int imageID, int startX, int startY, StudentWorld* myWorld);
+	Goodies(const int imageID,double startX, double startY, StudentWorld* myWorld);
 	virtual void doSomething();
 	virtual void addCount() = 0;		//does different actions for different goodies
 private:
@@ -149,28 +149,28 @@ private:
 class VaccineGoodies : public Goodies
 {
 public:
-	VaccineGoodies(int const imageID, int startX, int startY, StudentWorld* myWorld);
+	VaccineGoodies(int const imageID,double startX, double startY, StudentWorld* myWorld);
 	virtual void addCount();
 private:
 };
 class GasCanGoodies : public Goodies
 {
 public:
-	GasCanGoodies(int const imageID, int startX, int startY, StudentWorld* myWorld);
+	GasCanGoodies(int const imageID,double startX, double startY, StudentWorld* myWorld);
 	virtual void addCount();
 private:
 };
 class LandmineGoodies : public Goodies
 {
 public:
-	LandmineGoodies(int const imageID, int startX, int startY, StudentWorld* myWorld);
+	LandmineGoodies(int const imageID,double startX, double startY, StudentWorld* myWorld);
 	virtual void addCount();
 private:
 };
 class Wall : public Actor
 {
 public:
-	Wall(int startX, int startY, StudentWorld* myWorld);
+	Wall(double startX, double startY, StudentWorld* myWorld);
 	virtual void doSomething();
 	virtual bool canBlock();
 	virtual bool affectedByFlame();
@@ -179,7 +179,7 @@ private:
 class Exit : public Actor
 {
 public:
-	Exit(int startX, int startY, StudentWorld* myWorld);
+	Exit(double startX, double startY, StudentWorld* myWorld);
 	virtual void doSomething();	
 	virtual bool affectedByFlame();
 private:
