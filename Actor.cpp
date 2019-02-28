@@ -254,12 +254,14 @@ void Citizen::doSomething()
 	m_paralysis++;
 	if (m_paralysis % 2 == 1)
 		return;
-	double dist_p = getWorld()->distanceFromPene(this);
-	double dist_z = getWorld()->distanceFromZombie(this);
+	double dist_p = getWorld()->distanceFromPene(getX(), getY());
+	double dist_z = getWorld()->distanceFromZombie(getX(), getY());
 	if (dist_p < dist_z && dist_p <= 80)
 	{
 		char row = getWorld()->rowCitMove(this);
 		char col = getWorld()->colCitMove(this);
+		char otherRow = ' ';
+		char otherCol = ' ';
 		switch (row)
 		{
 		case 'r':
@@ -267,6 +269,7 @@ void Citizen::doSomething()
 			{
 				setDirection(right);
 				moveTo(getX() + 2, getY());
+				return;
 			}
 			break;
 		case'l':
@@ -274,7 +277,14 @@ void Citizen::doSomething()
 			{
 				setDirection(left);
 				moveTo(getX() - 2, getY());
+				return;
 			}
+			break;
+		case'd':
+			otherRow = 'd';
+			break;
+		case 'a':
+			otherRow = 'a';
 			break;
 		}
 		switch (col)
@@ -284,16 +294,126 @@ void Citizen::doSomething()
 			{
 				setDirection(up);
 				moveTo(getX(), getY() + 2);
+				return;
 			}
 			break;
-		case'd':
+		case'b':
 			if (getWorld()->canMove(this, getX(), getY() - 2))
 			{
 				setDirection(down);
 				moveTo(getX(), getY() - 2);
+				return;
 			}
 			break;
-		}/*
+		case 'w':
+			otherCol = 'w';
+			break;
+		case 's':
+			otherCol = 's';
+			break;
+		}
+		char newDir = ' ';
+		bool success = false;
+		if (randInt(1, 2) == 1)
+			newDir = otherRow;
+		else
+			newDir = otherCol;
+		switch (newDir)
+		{
+		case 'd':
+			if (getWorld()->canMove(this, getX() + 2, getY()))
+			{
+				setDirection(right);
+				moveTo(getX() + 2, getY());
+				success = true;
+				return;
+			}
+			break;
+		case'a':
+			if (getWorld()->canMove(this, getX() - 2, getY()))
+			{
+				setDirection(left);
+				moveTo(getX() - 2, getY());
+				success = true;
+				return;
+			}
+			break;
+		case 'w':
+			if (getWorld()->canMove(this, getX(), getY() + 2))
+			{
+				setDirection(up);
+				moveTo(getX(), getY() + 2);
+				success = true;
+				return;
+			}
+			break;
+		case's':
+			if (getWorld()->canMove(this, getX(), getY() - 2))
+			{
+				setDirection(down);
+				moveTo(getX(), getY() - 2);
+				success = true;
+				return;
+			}
+			break;
+		}
+		if (!success)
+		{
+			if (newDir == otherCol)
+				newDir = otherRow;
+			else
+				newDir = otherCol;
+			switch (newDir)
+			{
+			case 'd':
+				if (getWorld()->canMove(this, getX() + 2, getY()))
+				{
+					setDirection(right);
+					moveTo(getX() + 2, getY());
+					success = true;
+					return;
+				}
+				break;
+			case'a':
+				if (getWorld()->canMove(this, getX() - 2, getY()))
+				{
+					setDirection(left);
+					moveTo(getX() - 2, getY());
+					success = true;
+					return;
+				}
+				break;
+			case 'w':
+				if (getWorld()->canMove(this, getX(), getY() + 2))
+				{
+					setDirection(up);
+					moveTo(getX(), getY() + 2);
+					success = true;
+					return;
+				}
+				break;
+			case's':
+				if (getWorld()->canMove(this, getX(), getY() - 2))
+				{
+					setDirection(down);
+					moveTo(getX(), getY() - 2);
+					success = true;
+					return;
+				}
+				break;
+			}
+		}
+		else if (dist_z >= 80)
+		{
+			double moveDistance = dist_z;
+			if (getWorld()->canMove(this, getX() + 2, getY()) && getWorld()->distanceFromZombie(getX() + 2, getY()) < moveDistance)
+				moveDistance = getWorld()->distanceFromZombie(getX() + 2, getY());
+
+
+		}
+	}
+}
+		/*
 		if (row!=0)
 		{
 			if (row == 1 && getWorld()->canMove(this, getX() + 2, getY()))
@@ -331,9 +451,6 @@ void Citizen::doSomething()
 
 	}
 	*/
-	}
-
-}
 ///////////ZOMBIE FUNCTION IMPLEMENTATIONS///////////////////////
 Zombie::Zombie(int startX, int startY, StudentWorld* myWorld)
 	:Actor(IID_ZOMBIE, startX, startY, right, 0, true, false, true, myWorld)

@@ -32,11 +32,11 @@ public:
 	bool stepOnLandmine(double xPos, double yPos);
 	void infect(double xPos, double yPos);
 	bool ifPersonInFront(double xPos, double yPos);
-	double distance(Actor* one, Actor*two);
-	double distanceFromPene(Actor* two);
-	double distanceFromZombie(Actor* two);
-	int sameRowAsP(Actor* two);
-	int sameColAsP(Actor* two);
+	double distance(Actor* one, double xPos, double yPos);
+	double distanceFromPene(double xPos, double yPos);
+	double distanceFromZombie(double xPos, double yPos);
+	char rowCitMove(Actor* two);
+	char colCitMove(Actor* two);
 	~StudentWorld();
 
 private:

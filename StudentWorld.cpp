@@ -256,13 +256,7 @@ bool StudentWorld::overlapsPene(double xPos, double yPos)
 }
 bool StudentWorld::overlaps(Actor* with, double xPos, double yPos)
 {
-	double x1 = with->getX() + ((SPRITE_WIDTH - 1) / 2);
-	double y1 = with->getY() + ((SPRITE_HEIGHT - 1) / 2);
-	double x2 = xPos + ((SPRITE_WIDTH - 1) / 2);
-	double y2 = yPos + ((SPRITE_HEIGHT - 1) / 2);
-	double dx = x1 - x2;
-	double dy = y1 - y2;
-	if (((dx*dx) + (dy*dy)) <= 100)
+	if (distance(with,xPos,yPos) <= 10)
 		return true;
 	return false;
 }
@@ -293,28 +287,28 @@ void StudentWorld::infect(double xPos, double yPos)
 		m_penelope->setInfected(true);
 	}
 }
-double StudentWorld::distance(Actor* one, Actor* two)
+double StudentWorld::distance(Actor* one, double xPos, double yPos)
 {
 	double x1 = one->getX() + ((SPRITE_WIDTH - 1) / 2);
 	double y1 = one->getY() + ((SPRITE_HEIGHT - 1) / 2);
-	double x2 = two->getX() + ((SPRITE_WIDTH - 1) / 2);
-	double y2 = two->getY() + ((SPRITE_HEIGHT - 1) / 2);
+	double x2 = xPos + ((SPRITE_WIDTH - 1) / 2);
+	double y2 = yPos + ((SPRITE_HEIGHT - 1) / 2);
 	double dx = x1 - x2;
 	double dy = y1 - y2;
 	return sqrt((dx*dx) + (dy*dy));
 }
-double StudentWorld::distanceFromPene(Actor*two)
+double StudentWorld::distanceFromPene(double xPos, double yPos)
 {
-	return distance(m_penelope, two);
+	return distance(m_penelope, xPos, yPos);
 }
-double StudentWorld::distanceFromZombie(Actor*two)
+double StudentWorld::distanceFromZombie(double xPos, double yPos)
 {
 	double min = 1000;
 	list<Actor*>::iterator it = m_myActors.begin();
 	while (it != m_myActors.end())
 	{
-		if ((*it)->isZombie() && distance(*it, two) < min)
-			min = distance(*it, two);
+		if ((*it)->isZombie() && distance(*it, xPos, yPos) < min)
+			min = distance(*it, xPos, yPos);
 		it++;
 	}
 	return 1000;
@@ -406,27 +400,33 @@ void StudentWorld::addActor(char type, int startX, int startY, Direction dir, St
 	}
 	
 }
-int StudentWorld::sameRowAsP(Actor* two)
+char StudentWorld::rowCitMove(Actor* two)
 {
 	if (two->getY() == m_penelope->getY())
 	{
 		if (two->getX() < m_penelope->getX())
-			return 1; // means penelope is to the right
+			return 'r'; // means penelope is to the right
 		else
-			return -1; // means on the left
+			return 'l'; // means on the left
 	}
-	return 0;
+	else if (two->getX() < m_penelope->getX())	//find relative direction of where penelope is
+		return 'd';
+	else if (two->getX() > m_penelope->getX())
+		return 'a';
 }
-int StudentWorld::sameColAsP(Actor* two)
+char StudentWorld::colCitMove(Actor* two)
 {
 	if (two->getX() == m_penelope->getX())
 	{
 		if (two->getY() < m_penelope->getY())
-			return 1; // means penelope above
+			return 'u'; // means penelope above
 		else
-			return -1; // means penelope below
+			return 'b'; // means penelope below
 	}
-	return 0;
+	else if (two->getY() < m_penelope->getY())
+		return 'w';
+	else if (two->getY() > m_penelope->getY())
+		return 's';
 }
 void StudentWorld::increaseCount(int add, char type)
 {
