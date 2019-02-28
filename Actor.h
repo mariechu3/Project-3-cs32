@@ -8,7 +8,7 @@ class StudentWorld;
 class Actor :public GraphObject
 {
 public:
-	Actor(const int imageID, int startX, int startY, Direction startDirection, int depth, bool block, bool exit, bool flameEffect, StudentWorld* myWorld);
+	Actor(const int imageID, int startX, int startY, Direction startDirection, int depth, StudentWorld* myWorld);
 	virtual void doSomething() = 0;
 	bool isDead();
 	void setDead();
@@ -19,14 +19,11 @@ public:
 	virtual bool affectedByVomit();
 	virtual void setOffLandmine(){}
 	virtual void setInfected(bool yes) {}
-	//bool infected(){}
+	virtual void death(){}
 	StudentWorld* getWorld();
 private:
 	bool m_dead;
 	StudentWorld* m_world;
-	bool m_block;			//can use this to see if it overlaps
-	bool m_exit;
-	bool m_flame;			// seees if they are affected by flame
 };
 class Person : public Actor
 {
@@ -35,13 +32,12 @@ public:
 	virtual void setInfected(bool yes);
 	void addInfection();
 	void setInfectionBack();
-	virtual void doSomething() = 0;
 	virtual bool infected();
 	int infectionCount();
+	virtual void doSomething() = 0;	
 	virtual bool affectedByVomit();
 	virtual bool isPerson();
 	virtual bool canBlock();
-
 private:
 	bool m_infected;
 	int m_infectionCount;
@@ -71,6 +67,7 @@ public:
 	Citizen(int startX, int startY, StudentWorld* myWorld);
 	virtual void doSomething();
 	virtual void setInfected(bool yes);
+	virtual void death();
 private:
 	int m_paralysis;
 	bool firstInfection;
@@ -80,7 +77,6 @@ class Zombie : public Actor
 public:
 	Zombie(int startX, int startY, StudentWorld* myWorld);
 	virtual void doSomething();
-	int getParalysis();
 	void frontCoord(double &xPos, double &yPos, Direction dir);
 	virtual bool isZombie();
 	virtual bool differentMovements() = 0;
@@ -94,6 +90,7 @@ class DumbZombie : public Zombie
 public:
 	DumbZombie(int startX, int startY, StudentWorld* myWorld);
 	virtual bool differentMovements();
+	virtual void death();
 private:
 };
 class SmartZombie : public Zombie
@@ -101,6 +98,7 @@ class SmartZombie : public Zombie
 public:
 	SmartZombie(int startX, int startY, StudentWorld* myWorld);
 	virtual bool differentMovements();
+	virtual void death();
 private:
 };
 class Landmine : public Actor

@@ -5,8 +5,8 @@
 using namespace std;
 
 ///////ACTOR FUNCTION IMPLEMENTATIONS////////////////
-Actor::Actor(const int imageID, int startX, int startY, Direction startDirection, int depth, bool block, bool exit, bool flameEffect, StudentWorld* myWorld)
-	:GraphObject(imageID, startX, startY, startDirection, depth), m_dead(false), m_world(myWorld), m_block(block), m_exit(exit), m_flame(flameEffect) {}
+Actor::Actor(const int imageID, int startX, int startY, Direction startDirection, int depth, StudentWorld* myWorld)
+	:GraphObject(imageID, startX, startY, startDirection, depth), m_dead(false), m_world(myWorld) {}
 bool Actor::isDead()
 {
 	return m_dead;
@@ -14,10 +14,6 @@ bool Actor::isDead()
 void Actor::setDead()			//sets an actor state to dead and makes sure they can't block another actor
 {
 	m_dead = true;
-	m_block = false;
-	m_flame = false;
-	//m_infected = false;
-	//m_infectionCount = 0;
 }
 StudentWorld* Actor::getWorld()
 {
@@ -43,8 +39,12 @@ bool Actor::affectedByVomit()
 {
 	return false;
 }
+void Actor::death()
+{
+	setDead();
+}
 Person::Person(const int imageID, int startX, int startY, StudentWorld* myWorld)
-	:Actor(imageID, startX, startY, right, 0, true, true, true, myWorld)
+	:Actor(imageID, startX, startY, right, 0, myWorld)
 {
 	m_infected = false;
 	m_infectionCount = 0;
@@ -225,7 +225,7 @@ void Penelope::doSomething()
 		}
 	}
 }
-////////////CITIZEN FUNCTION IMPLEMENTATIONS///////////////////
+////////////CITIZEN IMPLEMENTATIONS///////////////////
 Citizen::Citizen(int startX, int startY, StudentWorld* myWorld)
 	: Person(IID_CITIZEN, startX, startY, myWorld)
 {
@@ -266,8 +266,8 @@ void Citizen::doSomething()
 	double dist_z = getWorld()->distanceFromZombie(getX(), getY());
 	if (dist_p < dist_z && dist_p <= 80)
 	{
-		char row = getWorld()->rowCitMove(this);
-		char col = getWorld()->colCitMove(this);
+		char row = getWorld()->rowMoveToP(this);
+		char col = getWorld()->colMoveToP(this);
 		char otherRow = ' ';
 		char otherCol = ' ';
 		switch (row)
@@ -480,14 +480,10 @@ void Citizen::doSomething()
 }
 ///////////ZOMBIE FUNCTION IMPLEMENTATIONS///////////////////////
 Zombie::Zombie(int startX, int startY, StudentWorld* myWorld)
-	:Actor(IID_ZOMBIE, startX, startY, right, 0, true, false, true, myWorld)
+	:Actor(IID_ZOMBIE, startX, startY, right, 0, myWorld)
 {
 	m_paralysis = 0;
 	m_movement = 0;
-}
-int Zombie::getParalysis()
-{
-	return m_paralysis;
 }
 bool Zombie::canBlock()
 {
@@ -553,6 +549,10 @@ void Zombie::doSomething()
 					break;
 				}
 			}
+			else
+			{
+				differentMovements();
+			}
 		}
 		else
 		{
@@ -617,12 +617,140 @@ SmartZombie::SmartZombie(int startX, int startY, StudentWorld* myWorld)
 }
 bool SmartZombie::differentMovements()
 {
-	/******************complete implementation*****/
-	return true;
+	double xCoor = 0;
+	double yCoor = 0;
+	int p_dist = getWorld()->distanceFromPene(getX(), getY());
+	int c_dist = getWorld()->distanceFromPerson(getX(), getY(),xCoor,yCoor);
+	if (c_dist < p_dist)
+		p_dist = c_dist;
+	if (p_dist > 80)
+		return false;
+	if (p_dist != c_dist)
+	{
+		char row = getWorld()->rowMoveToP(this);
+		char col = getWorld()->colMoveToP(this);
+		char otherRow = ' ';
+		char otherCol = ' ';
+		switch (row)
+		{
+		case 'r':
+			setDirection(right);
+			return true;
+			break;
+		case'l':
+			setDirection(left);
+			return true;
+			break;
+		case'd':
+			otherRow = 'd';
+			break;
+		case 'a':
+			otherRow = 'a';
+			break;
+		}
+		switch (col)
+		{
+		case 'u':
+			setDirection(up);
+			return true;
+			break;
+		case'b':
+			setDirection(down);
+			return true;
+			break;
+		case 'w':
+			otherCol = 'w';
+			break;
+		case 's':
+			otherCol = 's';
+			break;
+		}
+		char newDir = ' ';
+		if (randInt(1, 2) == 1)
+			newDir = otherRow;
+		else
+			newDir = otherCol;
+		switch (newDir)
+		{
+		case 'd':
+			setDirection(right);
+			return true;
+			break;
+		case'a':
+			setDirection(left);
+			return true;
+			break;
+		case 'w':
+			setDirection(up);
+			return true;
+			break;
+		case's':
+			setDirection(down);
+			return true;
+			break;
+		}
+	}
+	else
+	{
+		if (xCoor == getX())
+		{
+			if (yCoor >= getY())
+			{
+				setDirection(up);
+				return true;
+			}
+			else
+			{
+				setDirection(down);
+				return true;
+			}
+		}
+		if (yCoor == getY())
+		{
+			if (xCoor > getX())
+			{
+				setDirection(right);
+				return true;
+			}
+			else
+			{
+				setDirection(left);
+				return true;
+			}			
+		}
+		int choose = randInt(1, 2);
+		if (choose == 1) // in x
+		{
+			if (xCoor > getX())
+			{
+				setDirection(right);
+				return true;
+			}
+			else
+			{
+				setDirection(left);
+				return true;
+			}
+		}
+		else //in y
+		{
+			if (yCoor > getY())
+			{
+				setDirection(up);
+				return true;
+			}
+			else
+			{
+				setDirection(down);
+				return true;
+			}
+
+		}
+	}
 }
 ////////////////LANDMINE IMPLEMENTATIONS////////////////////
 Landmine::Landmine(int startX, int startY, StudentWorld* myWorld)
-	: Actor(IID_LANDMINE, startX, startY, right, 1, false, false, true, myWorld)
+	: Actor(IID_LANDMINE, startX, startY, right, 1, myWorld)
 {
 	active = false;
 	safety = 30;
@@ -650,7 +778,6 @@ void Landmine::doSomething()
 };
 void Landmine::setOffLandmine()
 {
-	cout << "did I reach here";
 	getWorld()->playSound(SOUND_LANDMINE_EXPLODE);
 	for(double i = 0; i < 3; i++)
 		getWorld()->addActor('f', getX() - SPRITE_WIDTH + (i*SPRITE_WIDTH), getY() + SPRITE_HEIGHT, up, getWorld());	//row 1 of fire
@@ -664,7 +791,7 @@ void Landmine::setOffLandmine()
 }
 ////////////////PIT IMPLEMENTATIONS////////////////////
 Pit::Pit(int startX, int startY, StudentWorld* myWorld)
-	: Actor(IID_PIT, startX, startY, right, 0 , false, false, false, myWorld)
+	: Actor(IID_PIT, startX, startY, right, 0 , myWorld)
 {
 }
 bool Pit::affectedByFlame()
@@ -677,7 +804,7 @@ void Pit::doSomething()
 };
 ////////////////FLAME IMPLEMENTATIONS////////////////////
 Flame::Flame(int startX, int startY, Direction startDirection, StudentWorld* myWorld)
-	: Actor(IID_FLAME, startX, startY, startDirection, 0, false, false, false, myWorld)
+	: Actor(IID_FLAME, startX, startY, startDirection, 0, myWorld)
 {
 	m_lives = 2;
 }
@@ -699,7 +826,7 @@ void Flame::doSomething()
 };
 ////////////////VOMIT IMPLEMENTATIONS////////////////////
 Vomit::Vomit(int startX, int startY, Direction startDirection, StudentWorld* myWorld)
-	: Actor(IID_VOMIT, startX, startY, startDirection, 0, false, false, false, myWorld)
+	: Actor(IID_VOMIT, startX, startY, startDirection, 0, myWorld)
 {
 	m_lives = 2;
 }
@@ -722,7 +849,7 @@ void Vomit::doSomething()
 };
 ////////////////GOODIES IMPLEMENTATIONS////////////////////
 Goodies::Goodies(const int imageID, int startX, int startY, StudentWorld* myWorld)
-	: Actor(imageID, startX, startY, right, 1, false, false, true, myWorld)
+	: Actor(imageID, startX, startY, right, 1, myWorld)
 {
 
 }
@@ -766,7 +893,7 @@ void LandmineGoodies::addCount()
 }
 ////////////////WALL IMPLEMENTATIONS////////////////////
 Wall::Wall(int startX, int startY, StudentWorld* myWorld)
-	: Actor(IID_WALL, startX, startY, right, 0, true, false, false, myWorld)
+	: Actor(IID_WALL, startX, startY, right, 0, myWorld)
 {
 
 }
@@ -781,7 +908,7 @@ bool Wall::affectedByFlame()
 void Wall::doSomething() {};
 ////////////////EXIT IMPLEMENTATIONS////////////////////
 Exit::Exit(int startX, int startY, StudentWorld* myWorld)
-	:Actor(IID_EXIT, startX, startY, right, 1, false, false, false, myWorld)
+	:Actor(IID_EXIT, startX, startY, right, 1, myWorld)
 {
 
 }

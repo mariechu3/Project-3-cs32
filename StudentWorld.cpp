@@ -313,6 +313,22 @@ double StudentWorld::distanceFromZombie(double xPos, double yPos)
 	}
 	return min;
 }
+double StudentWorld::distanceFromPerson(double xPos, double yPos, double& xCoor, double& yCoor)
+{
+	double min = 1000;
+	list<Actor*>::iterator it = m_myActors.begin();
+	while (it != m_myActors.end())
+	{
+		if ((*it)->isPerson() && distance((*it), xPos, yPos) < min)
+		{
+			min = distance(*it, xPos, yPos);
+			xCoor = (*it)->getX();
+			yCoor = (*it)->getY();
+		}
+		it++;
+	}
+	return min;
+}
 bool StudentWorld::stepOnLandmine(double xPos, double yPos)
 {
 	list<Actor*>::iterator it = m_myActors.begin();
@@ -400,7 +416,7 @@ void StudentWorld::addActor(char type, int startX, int startY, Direction dir, St
 	}
 	
 }
-char StudentWorld::rowCitMove(Actor* two)
+char StudentWorld::rowMoveToP(Actor* two)
 {
 	if (two->getY() == m_penelope->getY())
 	{
@@ -414,7 +430,35 @@ char StudentWorld::rowCitMove(Actor* two)
 	else if (two->getX() > m_penelope->getX())
 		return 'a';
 }
-char StudentWorld::colCitMove(Actor* two)
+char StudentWorld::colMoveToP(Actor* two)
+{
+	if (two->getX() == m_penelope->getX())
+	{
+		if (two->getY() < m_penelope->getY())
+			return 'u'; // means penelope above
+		else
+			return 'b'; // means penelope below
+	}
+	else if (two->getY() < m_penelope->getY())
+		return 'w';
+	else if (two->getY() > m_penelope->getY())
+		return 's';
+}
+char StudentWorld::rowMoveToC(Actor* two)
+{
+	if (two->getY() == m_penelope->getY())
+	{
+		if (two->getX() < m_penelope->getX())
+			return 'r'; // means penelope is to the right
+		else
+			return 'l'; // means on the left
+	}
+	else if (two->getX() < m_penelope->getX())	//find relative direction of where penelope is
+		return 'd';
+	else if (two->getX() > m_penelope->getX())
+		return 'a';
+}
+char StudentWorld::colMoveToC(Actor* two)
 {
 	if (two->getX() == m_penelope->getX())
 	{
