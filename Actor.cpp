@@ -41,10 +41,6 @@ bool Actor::affectedByFlame()
 {
 	return true;
 }
-bool Actor::affectedByVomit()
-{
-	return false;
-}
 void Actor::death()
 {
 	setDead();
@@ -60,10 +56,6 @@ bool Person::canBlock()
 	return true;
 }
 bool Person::isPerson()
-{
-	return true;
-}
-bool Person::affectedByVomit()
 {
 	return true;
 }
@@ -620,6 +612,29 @@ void DumbZombie::death()
 {
 	setDead();
 	getWorld()->playSound(SOUND_ZOMBIE_DIE);
+	if (randInt(1, 10) == 1)
+	{
+		int dir = randInt(1, 4);
+		switch (dir)
+		{
+		case 1:
+			if (getWorld()->canFlingVaccine(this, getX() + SPRITE_WIDTH, getY()))
+				getWorld()->addActor('m', getX() + SPRITE_WIDTH, getY(), right, getWorld());
+			break;
+		case 2:
+			if (getWorld()->canFlingVaccine(this, getX() - SPRITE_WIDTH, getY()))
+				getWorld()->addActor('m', getX() - SPRITE_WIDTH, getY(), right, getWorld());
+			break;
+		case 3:
+			if (getWorld()->canFlingVaccine(this, getX(), getY() + SPRITE_HEIGHT))
+				getWorld()->addActor('m', getX(), getY() + SPRITE_HEIGHT, right, getWorld());
+			break;
+		case 4:
+			if (getWorld()->canFlingVaccine(this, getX(), getY() - SPRITE_HEIGHT))
+				getWorld()->addActor('m', getX(), getY() - SPRITE_HEIGHT, right, getWorld());
+			break;
+		}
+	}
 	getWorld()->increaseScore(1000);
 }
 bool DumbZombie::differentMovements()

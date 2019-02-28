@@ -25,21 +25,22 @@ public:
 	bool overlapsPene(double xPos, double yPos);			//checks if object overlaps penelope
 	bool overlaps(Actor* with, double xPos, double yPos);	//check if objects overlap
 	bool canMove(Actor *src, double xPos, double yPos);		//checks if object can move onto new location
+	bool canFlingVaccine(Actor* src, double xPos, double yPos); //checks if zombie can fling a vaccine where it wants
 	bool blockFlame(double xPos, double yPos);		//checks if a flame can be created in that direction
 	void canLeave(double xPos, double yPos);		//checks if penelope can leave
 	bool left(double xPos, double yPos);			//checks if a citizen left the game							
-	void dieByPitOrFlame(double xPos, double yPos);
-	bool stepOnLandmine(double xPos, double yPos);
-	void infect(double xPos, double yPos);
-	bool ifPersonInFront(double xPos, double yPos);
-	double distance(Actor* one, double xPos, double yPos);
-	double distanceFromPene(double xPos, double yPos);
-	double distanceFromZombie(double xPos, double yPos);
-	double distanceFromPerson(double xPos, double yPos, double& xCoor, double& yCoor);
-	char rowMoveToP(Actor* two);
-	char colMoveToP(Actor* two);
-	char rowMoveToC(Actor* two);
-	char colMoveToC(Actor* two);
+	void dieByPitOrFlame(double xPos, double yPos); //kills whatever is overlapping with a pit or flame
+	bool stepOnLandmine(double xPos, double yPos);	//triggers the landmine
+	void infect(double xPos, double yPos);	//infects a person that is vomitted on
+	bool ifPersonInFront(double xPos, double yPos);	//checks if there is a person in front to vomit on
+	double distance(Actor* one, double xPos, double yPos);	//helper function for the distance from one thing to another
+	double distanceFromPene(double xPos, double yPos);	//distance from penelope to the other object
+	double distanceFromZombie(double xPos, double yPos);	//distance from zombie
+	double distanceFromPerson(double xPos, double yPos, double& xCoor, double& yCoor); // distance from a citizen
+	char rowMoveToP(Actor* two);		//move towards penelope(in the row dir)
+	char colMoveToP(Actor* two);		//move towards penelope(in the col dir)
+	char rowMoveToC(Actor* two);		//move towards citizen (in the row dir)
+	char colMoveToC(Actor* two);		//move towards citizen (in the col dir)
 	~StudentWorld();
 
 private:

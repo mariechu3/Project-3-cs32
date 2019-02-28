@@ -145,7 +145,7 @@ bool StudentWorld::ifPersonInFront(double xPos, double yPos)
 	list<Actor*>::iterator it = m_myActors.begin();
 	while (it != m_myActors.end())
 	{
-		if ((*it)->affectedByVomit() && overlaps((*it), xPos, yPos))
+		if ((*it)->isPerson() && overlaps((*it), xPos, yPos))
 		{
 			return true;
 		}
@@ -275,7 +275,7 @@ void StudentWorld::infect(double xPos, double yPos)
 	list<Actor*>::iterator it = m_myActors.begin();
 	while (it != m_myActors.end())
 	{
-		if ((*it)->affectedByVomit() && overlaps((*it), xPos, yPos))
+		if ((*it)->isPerson() && overlaps((*it), xPos, yPos))
 		{
 			(*it)->setInfected(true);
 		}
@@ -383,6 +383,10 @@ void StudentWorld::addActor(char type, int startX, int startY, Direction dir, St
 		addme = new Vomit(startX, startY, dir, myWorld);
 		m_myActors.push_front(addme);
 		break;
+	case 'm':
+		addme = new VaccineGoodies(IID_VACCINE_GOODIE, startX, startY, myWorld);
+		m_myActors.push_front(addme);
+		break;
 	case 'd':
 		addme = new DumbZombie(startX, startY, myWorld);
 		m_myActors.push_front(addme);
@@ -393,6 +397,19 @@ void StudentWorld::addActor(char type, int startX, int startY, Direction dir, St
 		break;
 	}
 	
+}
+bool StudentWorld::canFlingVaccine(Actor *src, double xPos, double yPos)
+{
+	list<Actor*>::iterator it = m_myActors.begin();
+	while (it != m_myActors.end())
+	{
+		if ((*it)!= src && overlaps((*it), xPos, yPos) && !(*it)->isDead())
+			return false;
+		it++;
+	}
+	if (overlaps(m_penelope, xPos, yPos) && !m_penelope->isDead())
+		return false;
+	return true;
 }
 char StudentWorld::rowMoveToP(Actor* two)
 {

@@ -10,17 +10,15 @@ class Actor :public GraphObject
 public:
 	Actor(const int imageID, int startX, int startY, Direction startDirection, int depth, StudentWorld* myWorld);
 	virtual void doSomething() = 0;
-	bool isDead();
-	void setDead();
-	virtual bool canBlock();
-	virtual bool isPerson();
-	virtual bool isZombie();
-	virtual bool affectedByFlame();
-	virtual bool affectedByVomit();
-	//virtual void setOffLandmine(){}
-	virtual bool blockFlame();
-	virtual void setInfected(bool yes) {}
-	virtual void death();
+	bool isDead();		//checks if actor is dead
+	void setDead();			//sets Actor to dead
+	virtual bool canBlock();	//checks if actor can block others
+	virtual bool isPerson();	//checks if actor is a person
+	virtual bool isZombie();	//checks if actor is a zombie
+	virtual bool affectedByFlame();	//checks if actor can be damaged by Flame
+	virtual bool blockFlame();	//checks if it can block a flame
+	virtual void setInfected(bool yes) {}	//sets a person's infected status to true (overridden in person class)
+	virtual void death();	//determines what to do if a person dies by flames or pit
 	StudentWorld* getWorld();
 private:
 	bool m_dead;
@@ -31,12 +29,11 @@ class Person : public Actor
 public:
 	Person(const int imageID, int startX, int startY, StudentWorld* myWorld);
 	virtual void setInfected(bool yes);
-	void addInfection();
-	void setInfectionBack();
-	virtual bool infected();
+	void addInfection();	//increases infection count by 1
+	void setInfectionBack();	//sets infection count to 0
+	virtual bool infected();	//checks if a person is infected
 	int infectionCount();
 	virtual void doSomething() = 0;	
-	virtual bool affectedByVomit();
 	virtual bool isPerson();
 	virtual bool canBlock();
 private:
@@ -48,14 +45,14 @@ class Penelope : public Person
 public:
 	Penelope(int startX, int startY, StudentWorld* myWorld);
 	virtual void doSomething();
-	void addNumLand(int add);
-	int numLandmine();
-	void addNumFlames(int add);
-	int numFlames();
-	void addNumVaccine(int add);
-	int numVaccine();
-	void setCompletion();
-	bool completion();
+	void addNumLand(int add);	//increases her landmine count
+	int numLandmine();	//return her landmine count
+	void addNumFlames(int add);	//increases her flame count
+	int numFlames();	//returns her flame count
+	void addNumVaccine(int add);	//increases her vaccine count
+	int numVaccine();	//returns her vaccine count
+	void setCompletion(); //sets her status of level completion to true
+	bool completion();	 //checks if she completed the level
 private:
 	int m_landmine;
 	int m_flamethrower;
@@ -78,9 +75,9 @@ class Zombie : public Actor
 public:
 	Zombie(int startX, int startY, StudentWorld* myWorld);
 	virtual void doSomething();
-	void frontCoord(double &xPos, double &yPos, Direction dir);
+	void frontCoord(double &xPos, double &yPos, Direction dir); //checks what the planned position of the zombie would be
 	virtual bool isZombie();
-	virtual bool differentMovements() = 0;
+	virtual bool differentMovements() = 0; // different implementation for smart and dumb zombies
 	virtual bool canBlock();
 private:
 	int m_paralysis;
@@ -107,7 +104,7 @@ class Landmine : public Actor
 public:
 	Landmine(int startX, int startY, StudentWorld* myWorld);
 	virtual void doSomething();
-	void setOffLandmine();
+	void setOffLandmine();	//triggers the landmine/creates flames and pit/etc.
 	virtual void death();
 private:
 	bool active;
@@ -146,7 +143,7 @@ class Goodies : public Actor
 public:
 	Goodies(const int imageID, int startX, int startY, StudentWorld* myWorld);
 	virtual void doSomething();
-	virtual void addCount() = 0;
+	virtual void addCount() = 0;		//does different actions for different goodies
 private:
 };
 class VaccineGoodies : public Goodies
