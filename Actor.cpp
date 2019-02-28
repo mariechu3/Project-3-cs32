@@ -21,30 +21,31 @@ StudentWorld* Actor::getWorld()
 }
 bool Actor::canBlock()
 {
-	return false;
+	return false;	//for most actors they can't block other actors
 }
 bool Actor::isPerson()
 {
-	return false;
+	return false;	//most actors are not people
 }
 bool Actor::isZombie()
 {
-	return false;
+	return false;	//most actors are not zombies
 }
 bool Actor::blockFlame()
 {
 	if (affectedByFlame())
-		return false;
-	return true;
+		return false;		//most actors affected by Flame cannot block flames
+	return true;	
 }
 bool Actor::affectedByFlame()
 {
-	return true;
+	return true;			//most actors are affected by Flames
 }
 void Actor::death()
 {
-	setDead();
+	setDead();		//most actors just die when they are killed
 }
+//////////////////////////////////PERSON IMPLEMENTATIONS//////////////////////////////////////////
 Person::Person(const int imageID, int startX, int startY, StudentWorld* myWorld)
 	:Actor(imageID, startX, startY, right, 0, myWorld)
 {
@@ -126,9 +127,9 @@ void Penelope::doSomething()
 		return;
 	if (infected())
 	{
-		addInfection();
+		addInfection();	//if she is infected, increase her infection count
 	}
-	if (infectionCount() == 500)		//penelope turned into a zombie
+	if (infectionCount() == 500)		//penelope turned into a zombie/died
 	{
 		setDead();
 		getWorld()->decLives();
@@ -152,12 +153,12 @@ void Penelope::doSomething()
 			break;
 		case KEY_PRESS_UP:
 			setDirection(up);
-			if(getWorld()->canMove(this, getX(), getY()+4.0)) //check if penelope can move to new spot
+			if(getWorld()->canMove(this, getX(), getY()+4.0)) //check if penelope can move to new spot, up
 				moveTo(getX(), getY()+4.0);
 			break;
 		case KEY_PRESS_DOWN:
 			setDirection(down);
-			if(getWorld()->canMove(this, getX(), getY()-4.0))	//check if penelope can move to new spot
+			if(getWorld()->canMove(this, getX(), getY()-4.0))	//check if penelope can move to new spot, down
 				moveTo(getX(), getY()-4.0);
 			break;
 		case KEY_PRESS_SPACE:
@@ -170,17 +171,17 @@ void Penelope::doSomething()
 				case up:
 					for (double i = 1; i <= 3; i++)
 					{
-						if(getWorld()->blockFlame(getX(), getY() + (i*SPRITE_HEIGHT)))
+						if(getWorld()->blockFlame(getX(), getY() + (i*SPRITE_HEIGHT)))	//checks if flame is blocked
 							break;
-						getWorld()->addActor('f', getX(), getY() + (i*SPRITE_HEIGHT), up, getWorld());
+						getWorld()->addActor('f', getX(), getY() + (i*SPRITE_HEIGHT), up, getWorld());	//creates 3 flames in up dir if not blocked
 					}
 					break;
 				case down:
 					for (double i = 1; i <= 3; i++)
 					{
-						if (getWorld()->blockFlame(getX(), getY() - (i*SPRITE_HEIGHT)))
+						if (getWorld()->blockFlame(getX(), getY() - (i*SPRITE_HEIGHT)))	//checks if flame is blocked
 							break;
-						getWorld()->addActor('f', getX(), getY() - (i*SPRITE_HEIGHT), down, getWorld());
+						getWorld()->addActor('f', getX(), getY() - (i*SPRITE_HEIGHT), down, getWorld()); //creates 3 flames in down dir if not blocked
 					}
 					break;
 				case left:
@@ -188,7 +189,7 @@ void Penelope::doSomething()
 					{
 						if (getWorld()->blockFlame(getX() - (i*SPRITE_WIDTH), getY()))
 							break;
-						getWorld()->addActor('f', getX() - (i*SPRITE_WIDTH), getY(), left, getWorld());
+						getWorld()->addActor('f', getX() - (i*SPRITE_WIDTH), getY(), left, getWorld());		//creates 3 flames in left dir if not blocked
 					}
 					break;
 				case right:
@@ -196,7 +197,7 @@ void Penelope::doSomething()
 					{
 						if (getWorld()->blockFlame(getX() + (i*SPRITE_WIDTH), getY()))
 							break;
-						getWorld()->addActor('f', getX() + (i*SPRITE_WIDTH), getY(), right, getWorld());
+						getWorld()->addActor('f', getX() + (i*SPRITE_WIDTH), getY(), right, getWorld());	//creates 3 flames in the right dir if not blocked
 					}
 					break;
 				}
@@ -204,14 +205,14 @@ void Penelope::doSomething()
 			}
 			break;
 		case KEY_PRESS_TAB:
-			if (m_landmine > 0)
+			if (m_landmine > 0)	//sets down a landmine
 			{
 				getWorld()->addActor('l', getX(), getY(), right, getWorld());
 				m_landmine--;
 			}
 			break;
 		case KEY_PRESS_ENTER:
-			if (m_vaccine > 0)
+			if (m_vaccine > 0)		//uses her vaccine
 			{
 				m_vaccine--;
 				setInfected(false);
@@ -221,14 +222,14 @@ void Penelope::doSomething()
 		}
 	}
 }
-////////////CITIZEN IMPLEMENTATIONS///////////////////
+////////////CITIZEN IMPLEMENTATIONS///////////////////////////////////
 Citizen::Citizen(int startX, int startY, StudentWorld* myWorld)
 	: Person(IID_CITIZEN, startX, startY, myWorld)
 {
 	m_paralysis = 0;
 	firstInfection = true;
 }
-void Citizen::death()
+void Citizen::death()	//what a citizen does if it dies by pit/flames
 {
 	setDead();
 	getWorld()->playSound(SOUND_CITIZEN_DIE);
@@ -237,7 +238,7 @@ void Citizen::death()
 void Citizen::setInfected(bool yes)
 {
 	Person::setInfected(true);
-	if (firstInfection)
+	if (firstInfection)		// if it is the first time a citizen was infection, play the sound
 	{
 		getWorld()->playSound(SOUND_CITIZEN_INFECTED);
 		firstInfection = false;
@@ -256,131 +257,131 @@ void Citizen::doSomething()
 		setDead();
 		getWorld()->playSound(SOUND_ZOMBIE_BORN);
 		getWorld()->increaseScore(-1000);
-		if (randInt(1, 10) == 7)
-			getWorld()->addActor('d', getX(), getY(), getDirection(), getWorld());
+		if (randInt(1, 10) == 7)	
+			getWorld()->addActor('d', getX(), getY(), getDirection(), getWorld());		//70% chance dumb zombie created
 		else
-			getWorld()->addActor('s', getX(), getY(), getDirection(), getWorld());
+			getWorld()->addActor('s', getX(), getY(), getDirection(), getWorld());		//30% chance smart zombie created
 	}
 	m_paralysis++;
-	if (m_paralysis % 2 == 1)
+	if (m_paralysis % 2 == 1)		//citizen only does something every other tick
 		return;
 	double dist_p = getWorld()->distanceFromPene(getX(), getY());
 	double dist_z = getWorld()->distanceFromZombie(getX(), getY());
-	if (dist_p < dist_z && dist_p <= 80)
+	if (dist_p < dist_z && dist_p <= 80)		//if the distance to penelope is closer than to a zombie
 	{
-		char row = getWorld()->rowMoveToP(this);
-		char col = getWorld()->colMoveToP(this);
+		char row = getWorld()->rowMoveToP(this);		//find which dir citizen should move along the rows
+		char col = getWorld()->colMoveToP(this);		//find which dir citizen should move along the col
 		char otherRow = ' ';
 		char otherCol = ' ';
 		switch (row)
 		{
 		case 'r':
-			if (getWorld()->canMove(this, getX() + 2, getY()))
+			if (getWorld()->canMove(this, getX() + 2, getY()))	//if the citizen is on the same row as penelope and can move
 			{
-				setDirection(right);
-				moveTo(getX() + 2, getY());
+				setDirection(right);	
+				moveTo(getX() + 2, getY()); //move closer to penelope (right)
 				return;
 			}
 			break;
 		case'l':
-			if (getWorld()->canMove(this, getX() - 2, getY()))
+			if (getWorld()->canMove(this, getX() - 2, getY())) //if citizen is on the same row as penelope and can move
 			{
 				setDirection(left);
-				moveTo(getX() - 2, getY());
+				moveTo(getX() - 2, getY()); //move closer to penelope (left)
 				return;
 			}
 			break;
 		case'd':
-			otherRow = 'd';
+			otherRow = 'd';		//citizen is not on same row, penelope is to the right
 			break;
 		case 'a':
-			otherRow = 'a';
+			otherRow = 'a'; //citizen is not on the same row, penelope is to the left
 			break;
 		}
 		switch (col)
 		{
 		case 'u':
-			if (getWorld()->canMove(this, getX(), getY() + 2))
+			if (getWorld()->canMove(this, getX(), getY() + 2))	//if citizen is on the same col as penelope and can move
 			{
 				setDirection(up);
-				moveTo(getX(), getY() + 2);
+				moveTo(getX(), getY() + 2);  //move closer to penelope (up)
 				return;
 			}
 			break;
 		case'b':
-			if (getWorld()->canMove(this, getX(), getY() - 2))
+			if (getWorld()->canMove(this, getX(), getY() - 2)) //if citizen is on the same col as penelope and can move
 			{
 				setDirection(down);
-				moveTo(getX(), getY() - 2);
+				moveTo(getX(), getY() - 2);  //move closer to penelope (down)
 				return;
 			}
 			break;
 		case 'w':
-			otherCol = 'w';
+			otherCol = 'w';	//citizen not on same col, penelope is above
 			break;
 		case 's':
-			otherCol = 's';
+			otherCol = 's'; //citizen not on same col, penelope is below
 			break;
 		}
+		//if it reached here that means citizen and penelope are not on the same row/col
 		char newDir = ' ';
 		bool success = false;
-		if (randInt(1, 2) == 1)
+		if (randInt(1, 2) == 1)	//choose randomly between vertical or horizontal dir that will get citizen closer to penelope
 			newDir = otherRow;
 		else
 			newDir = otherCol;
 		switch (newDir)
 		{
 		case 'd':
-			if (getWorld()->canMove(this, getX() + 2, getY()))
+			if (getWorld()->canMove(this, getX() + 2, getY()))	//if citizen can move
 			{
 				setDirection(right);
-				moveTo(getX() + 2, getY());
+				moveTo(getX() + 2, getY());	//move closer to penelope (right)
 				success = true;
 				return;
 			}
 			break;
 		case'a':
-			if (getWorld()->canMove(this, getX() - 2, getY()))
+			if (getWorld()->canMove(this, getX() - 2, getY()))	//if citizen can move
 			{
 				setDirection(left);
-				moveTo(getX() - 2, getY());
+				moveTo(getX() - 2, getY()); //move closer to peneleop (left)
 				success = true;
 				return;
 			}
 			break;
 		case 'w':
-			if (getWorld()->canMove(this, getX(), getY() + 2))
+			if (getWorld()->canMove(this, getX(), getY() + 2))	//if citizen can move
 			{
 				setDirection(up);
-				moveTo(getX(), getY() + 2);
+				moveTo(getX(), getY() + 2);	//move closer to penelope (up)
 				success = true;
 				return;
 			}
 			break;
 		case's':
-			if (getWorld()->canMove(this, getX(), getY() - 2))
+			if (getWorld()->canMove(this, getX(), getY() - 2)) //if citizen can move
 			{
 				setDirection(down);
-				moveTo(getX(), getY() - 2);
+				moveTo(getX(), getY() - 2); //move closer to penelope (down)
 				success = true;
 				return;
 			}
 			break;
 		}
-		if (!success)
+		if (!success)	//if the citizen could not move in the randomly selected horizontal/vertical dir that would get it closer to penelope
 		{
 			if (newDir == otherCol)
 				newDir = otherRow;
 			else
 				newDir = otherCol;
-			switch (newDir)
+			switch (newDir)	//try to see if citizen can move in the other direction that will get it closer to penelope
 			{
 			case 'd':
 				if (getWorld()->canMove(this, getX() + 2, getY()))
 				{
 					setDirection(right);
 					moveTo(getX() + 2, getY());
-					success = true;
 					return;
 				}
 				break;
@@ -389,7 +390,6 @@ void Citizen::doSomething()
 				{
 					setDirection(left);
 					moveTo(getX() - 2, getY());
-					success = true;
 					return;
 				}
 				break;
@@ -398,7 +398,6 @@ void Citizen::doSomething()
 				{
 					setDirection(up);
 					moveTo(getX(), getY() + 2);
-					success = true;
 					return;
 				}
 				break;
@@ -407,42 +406,41 @@ void Citizen::doSomething()
 				{
 					setDirection(down);
 					moveTo(getX(), getY() - 2);
-					success = true;
 					return;
 				}
 				break;
 			}
 		}
 	}
-	else if (dist_z <= 80)
+	else if (dist_z <= 80) // if a zombie is closer than penelope and within 80 pixel distance away
 	{
 		double moveDistance = dist_z;
 		char move = ' ';
 		if (getWorld()->canMove(this, getX() + 2, getY()) && getWorld()->distanceFromZombie(getX() + 2, getY()) > moveDistance) //checks right
 		{
-			moveDistance = getWorld()->distanceFromZombie(getX() + 2, getY());
+			moveDistance = getWorld()->distanceFromZombie(getX() + 2, getY());	//sets to the furthest potential distance from a zombie
 			move = 'r';
 		}
 		if (getWorld()->canMove(this, getX() + 2, getY()) && getWorld()->distanceFromZombie(getX() - 2, getY()) > moveDistance) //checks left
 		{
-			moveDistance = getWorld()->distanceFromZombie(getX() - 2, getY());
+			moveDistance = getWorld()->distanceFromZombie(getX() - 2, getY()); //sets to the furthest potential distance from a zombie
 			move = 'l';
 		}
 		if (getWorld()->canMove(this, getX() + 2, getY()) && getWorld()->distanceFromZombie(getX(), getY() + 2) > moveDistance) //checks up
 		{
-			moveDistance = getWorld()->distanceFromZombie(getX(), getY() + 2);
+			moveDistance = getWorld()->distanceFromZombie(getX(), getY() + 2); //sets to the furthest potential distance from a zombie
 			move = 'u';
 		}
 		if (getWorld()->canMove(this, getX() + 2, getY()) && getWorld()->distanceFromZombie(getX(), getY() - 2) > moveDistance) //checks down
 		{
-			moveDistance = getWorld()->distanceFromZombie(getX(), getY() - 2);
+			moveDistance = getWorld()->distanceFromZombie(getX(), getY() - 2); //sets to the furthest potential distance from a zombie
 			move = 'd';
 		}
-		if (moveDistance == dist_z)
-			return;
+		if (moveDistance == dist_z) // if the current distance to a zombie was the smallest distance
+			return; //the citizen does not move because it is in the "safest" spot
 		else
 		{
-			switch (move)
+			switch (move) // move in the direction that will move it furthest from the nearest zombie, if the citizen can move to that position
 			{
 			case 'r':
 				if (getWorld()->canMove(this, getX() + 2, getY()))
@@ -491,7 +489,7 @@ bool Zombie::canBlock()
 {
 	return true;
 }
-void Zombie::frontCoord(double &xPos, double &yPos, Direction dir)
+void Zombie::frontCoord(double &xPos, double &yPos, Direction dir) //determines position of the zombie one spot forward in the direction it faces
 {
 	switch (dir)
 	{
@@ -518,24 +516,24 @@ void Zombie::doSomething()
 	if (isDead())
 		return;
 	m_paralysis++;
-	if (m_paralysis % 2 == 0)
+	if (m_paralysis % 2 == 0)	//zombies only move every other tick
 	{
 		double xPos = getX();
 		double yPos = getY();
 		frontCoord(xPos, yPos, getDirection());
 		if (getWorld()->ifPersonInFront(xPos, yPos) && randInt(1, 3) == 3)
 		{
-			getWorld()->addActor('v', xPos, yPos, getDirection(), getWorld());
+			getWorld()->addActor('v', xPos, yPos, getDirection(), getWorld());	// if there is a person in front of the zombie, vomit on them
 			getWorld()->playSound(SOUND_ZOMBIE_VOMIT);
 			return;
 		}
-		if (m_movement == 0)
+		if (m_movement == 0)	//set a new movement plan
 		{
-			m_movement = randInt(3, 10);
-			if (!differentMovements())
+			m_movement = randInt(3, 10);	//movement plan
+			if (!differentMovements())	//if it is a dumb zombie or the nearest person is more than 80 pixels away from a smart zombie
 			{
 				int temp = randInt(1, 4);
-				switch (temp)
+				switch (temp)	//choose a random dir to face
 				{
 				case 1:
 					setDirection(up);
@@ -553,13 +551,13 @@ void Zombie::doSomething()
 			}
 			else
 			{
-				differentMovements();
+				differentMovements();	//there is a person 80 pixels or less from the zombie
 			}
 		}
 		else
 		{
 			int temp = getDirection();
-			switch (temp)
+			switch (temp)	//moves in the dir it is facing if it will not be blocked, if it is blocked, set a new movement plan for next tick
 			{
 			case right:
 				if (getWorld()->canMove(this, getX() + 1.0, getY()))
@@ -606,15 +604,14 @@ void Zombie::doSomething()
 DumbZombie::DumbZombie(int startX, int startY, StudentWorld* myWorld)
 	:Zombie(startX, startY, myWorld)
 {
-
 }
-void DumbZombie::death()
+void DumbZombie::death() //what a dumb zombie should do when it is killed by a pit or flame
 {
 	setDead();
 	getWorld()->playSound(SOUND_ZOMBIE_DIE);
-	if (randInt(1, 10) == 1)
+	if (randInt(1, 10) == 1)	//one in ten chance
 	{
-		int dir = randInt(1, 4);
+		int dir = randInt(1, 4);	//it will chuck a vaccine in a random direction next to it when it dies
 		switch (dir)
 		{
 		case 1:
@@ -646,7 +643,7 @@ SmartZombie::SmartZombie(int startX, int startY, StudentWorld* myWorld)
 {
 
 }
-void SmartZombie::death()
+void SmartZombie::death()	//what a smart zombie does when it dies
 {
 	setDead();
 	getWorld()->playSound(SOUND_ZOMBIE_DIE);
@@ -656,13 +653,13 @@ bool SmartZombie::differentMovements()
 {
 	double xCoor = 0;
 	double yCoor = 0;
-	int p_dist = getWorld()->distanceFromPene(getX(), getY());
-	int c_dist = getWorld()->distanceFromPerson(getX(), getY(),xCoor,yCoor);
-	if (c_dist < p_dist)
-		p_dist = c_dist;
-	if (p_dist > 80)
-		return false;
-	if (p_dist != c_dist)
+	int p_dist = getWorld()->distanceFromPene(getX(), getY()); // find the distance to penelope
+	int c_dist = getWorld()->distanceFromPerson(getX(), getY(),xCoor,yCoor); //find the distance to the nearest citizen
+	if (c_dist < p_dist)	//if the distance to a citizen is closer
+		p_dist = c_dist;	//set p_dist to it
+	if (p_dist > 80)	//if the distance to the nearest person is larger than 80
+		return false;	//do what a dumb zombie does and choose a random dir in doSomething
+	if (p_dist != c_dist)	//if penelope is closer
 	{
 		char row = getWorld()->rowMoveToP(this);
 		char col = getWorld()->colMoveToP(this);
@@ -670,40 +667,40 @@ bool SmartZombie::differentMovements()
 		char otherCol = ' ';
 		switch (row)
 		{
-		case 'r':
+		case 'r':					//if zombie and penelope are on the same row and penelope is to the right
 			setDirection(right);
 			return true;
 			break;
 		case'l':
-			setDirection(left);
+			setDirection(left);	//if zombie and penelope are on the same row and penelop is to the left
 			return true;
 			break;
 		case'd':
-			otherRow = 'd';
+			otherRow = 'd';		//penelope is relatively to the right
 			break;
 		case 'a':
-			otherRow = 'a';
+			otherRow = 'a';	//penelope is relatively to the left
 			break;
 		}
 		switch (col)
 		{
 		case 'u':
-			setDirection(up);
-			return true;
+			setDirection(up);	//if zombie and penelope are on the same col and penelope is above
+			return true;	
 			break;
 		case'b':
-			setDirection(down);
+			setDirection(down);	//if zombie and penelope are on the same col and penelope is below
 			return true;
 			break;
 		case 'w':
-			otherCol = 'w';
+			otherCol = 'w';		//penelope is relatatively above
 			break;
 		case 's':
-			otherCol = 's';
+			otherCol = 's';	//penelope is relatively below
 			break;
 		}
 		char newDir = ' ';
-		if (randInt(1, 2) == 1)
+		if (randInt(1, 2) == 1)	//chose randomly between a vertical or horizontal direction that will get zombie closer to penelope
 			newDir = otherRow;
 		else
 			newDir = otherCol;
@@ -727,35 +724,36 @@ bool SmartZombie::differentMovements()
 			break;
 		}
 	}
-	else
+	else	//moves closer to a citizen
 	{
-		if (xCoor == getX())
+		if (xCoor == getX())	//if they are on the same column
 		{
-			if (yCoor >= getY())
+			if (yCoor >= getY())	//and the citizen is above the zombie
 			{
 				setDirection(up);
 				return true;
 			}
 			else
 			{
-				setDirection(down);
+				setDirection(down);	//and the citizen is below the zombie
 				return true;
 			}
 		}
-		if (yCoor == getY())
+		if (yCoor == getY())	//if they are on the same row
 		{
-			if (xCoor > getX())
+			if (xCoor > getX())	
 			{
-				setDirection(right);
+				setDirection(right); //and the citizen is to the right of the zombie
 				return true;
 			}
 			else
 			{
-				setDirection(left);
+				setDirection(left);	//and the citizen is to the left of the zombie
 				return true;
 			}			
 		}
-		int choose = randInt(1, 2);
+		// if it gets here that means the zombie and citizen were not on the same row or col
+		int choose = randInt(1, 2);	//choose a random vertical or horizontal direction that will get the zombie closer to the citizen
 		if (choose == 1) // in x
 		{
 			if (xCoor > getX())
@@ -797,37 +795,34 @@ void Landmine::doSomething()
 {
 	if (isDead())
 		return;
-	if (safety > 0)
+	if (safety > 0)	//if the safety is on then don't do this
 	{
 		safety--;
 		if (safety == 0)
 		{
-			active = true;
+			active = true;	//set it to active
 			return;
 		}
 	}
-	if (active && getWorld()->stepOnLandmine(getX(), getY()))
-		//setOff = true;
-	//if (active && setOff)
-	//{
+	if (active && getWorld()->stepOnLandmine(getX(), getY())) // if it is active and someone stepped on it
 		setOffLandmine();
-//	}
 };
-void Landmine::death()
+void Landmine::death() // if the landmine was overlapped with fire
 {
 	setDead();
 	setOffLandmine();
 }
 void Landmine::setOffLandmine()
 {
-	getWorld()->playSound(SOUND_LANDMINE_EXPLODE);
+	getWorld()->playSound(SOUND_LANDMINE_EXPLODE); 
+	//creates the fire in appropriate spots with respect to the dead landmine
 	for(double i = 0; i < 3; i++)
 		getWorld()->addActor('f', getX() - SPRITE_WIDTH + (i*SPRITE_WIDTH), getY() + SPRITE_HEIGHT, up, getWorld());	//row 1 of fire
 	for (double i = 0; i < 3; i++)
 		getWorld()->addActor('f', getX() - SPRITE_WIDTH + (i*SPRITE_WIDTH), getY(), up, getWorld());   //row 2 of fire
 	for (double i = 0; i < 3; i++)
 		getWorld()->addActor('f', getX() - SPRITE_WIDTH + (i*SPRITE_WIDTH), getY() -SPRITE_HEIGHT, up, getWorld());	//row 3 of fire
-	getWorld()->addActor('p', getX(), getY(), right, getWorld());
+	getWorld()->addActor('p', getX(), getY(), right, getWorld()); //creates a pit in place of the dead landmine
 	setDead();
 	active = false;
 }
@@ -846,7 +841,7 @@ bool Pit::blockFlame()
 }
 void Pit::doSomething() 
 {
-	getWorld()->dieByPitOrFlame(getX(), getY());
+	getWorld()->dieByPitOrFlame(getX(), getY()); //checks if anything overlaps with it
 };
 ////////////////FLAME IMPLEMENTATIONS////////////////////
 Flame::Flame(int startX, int startY, Direction startDirection, StudentWorld* myWorld)
@@ -863,12 +858,12 @@ void Flame::doSomething()
 	if (isDead())
 		return;
 	m_lives--;
-	if (m_lives == 0)
+	if (m_lives == 0)	//if two ticks passed
 	{
 		setDead();
 		return;
 	}
-	getWorld()->dieByPitOrFlame(getX(), getY());
+	getWorld()->dieByPitOrFlame(getX(), getY());	//checks if anything overlaps with it
 };
 ////////////////VOMIT IMPLEMENTATIONS////////////////////
 Vomit::Vomit(int startX, int startY, Direction startDirection, StudentWorld* myWorld)
@@ -890,8 +885,7 @@ void Vomit::doSomething()
 		setDead();
 		return;
 	}
-	getWorld()->infect(getX(), getY());
-
+	getWorld()->infect(getX(), getY()); // infect people if there are any overlapping it
 };
 ////////////////GOODIES IMPLEMENTATIONS////////////////////
 Goodies::Goodies(const int imageID, int startX, int startY, StudentWorld* myWorld)
@@ -903,12 +897,12 @@ void Goodies::doSomething()
 {
 	if (isDead())
 		return;
-	if (getWorld()->overlapsPene(getX(), getY()))
+	if (getWorld()->overlapsPene(getX(), getY()))	//if penelope overlapped with a goodie
 	{
 		getWorld()->increaseScore(50);
 		setDead();
 		getWorld()->playSound(SOUND_GOT_GOODIE);
-		addCount();
+		addCount();	//increases penelopes count for whichever goodie respectively
 	}
 };
 VaccineGoodies::VaccineGoodies(int const imageID, int startX, int startY, StudentWorld* myWorld)
@@ -964,11 +958,11 @@ bool Exit::affectedByFlame()
 }
 void Exit::doSomething() 
 {		
-	if (getWorld()->citizenCount() == 0)
+	if (getWorld()->citizenCount() == 0)		//if there are no citizens left
 	{
-		getWorld()->canLeave(getX(), getY());
+		getWorld()->canLeave(getX(), getY());	//tell penelope it can leave if she is overlapping the exit
 	}
-	if (getWorld()->left(getX(), getY()))
+	if (getWorld()->left(getX(), getY())) //if a person is overlapping the exit and left via the exit
 	{
 		getWorld()->increaseScore(500);
 		getWorld()->playSound(SOUND_CITIZEN_SAVED);

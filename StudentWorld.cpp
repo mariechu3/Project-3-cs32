@@ -15,14 +15,12 @@ GameWorld* createStudentWorld(string assetPath)
 {
 	return new StudentWorld(assetPath);
 }
-
 StudentWorld::StudentWorld(string assetPath)
 : GameWorld(assetPath),m_myActors()
 {
 	m_penelope = nullptr;
 	m_numCit = 0;
 }
-
 /*Sets the stage with all the actors in the correct places*/
 int StudentWorld::init() 
 {
@@ -33,12 +31,12 @@ int StudentWorld::init()
 	if (getLevel() == 99 || result == Level::load_fail_file_not_found)
 	{
 		cerr << "Could not find level data file/player won" << endl;
-		return GWSTATUS_PLAYER_WON;
+		return GWSTATUS_PLAYER_WON;					//player won the game
 	}
 	else if (result == Level::load_fail_bad_format)
 	{
 		cerr << "Your level was improperly formatted" << endl;
-		return GWSTATUS_LEVEL_ERROR;
+		return GWSTATUS_LEVEL_ERROR;	//file improperly formatted
 	}
 	else if (result == Level::load_success)
 	{
@@ -55,7 +53,7 @@ int StudentWorld::init()
 			case Level::empty:  //do nothing
 				break;
 			case Level::citizen:
-				addMe = new Citizen(SPRITE_WIDTH * col, SPRITE_HEIGHT*row, this);			//dynamically allocate a smart zombie at the position indicated by the level txt file 
+				addMe = new Citizen(SPRITE_WIDTH * col, SPRITE_HEIGHT*row, this);			//dynamically allocate a citizen at the position indicated by the level txt file 
 				m_myActors.push_front(addMe);
 				break;
 			case Level::smart_zombie:
@@ -99,7 +97,7 @@ int StudentWorld::init()
 		}
 	}
 	}
-	return GWSTATUS_CONTINUE_GAME;
+	return GWSTATUS_CONTINUE_GAME;	//player continues the game
 }
 int StudentWorld::move()
 {
@@ -120,11 +118,11 @@ int StudentWorld::move()
 		it++;
 	}
 	if (m_penelope->isDead())
-		return GWSTATUS_PLAYER_DIED;
+		return GWSTATUS_PLAYER_DIED;	//penelope died
 	if (m_penelope->completion())
 	{
 		playSound(SOUND_LEVEL_FINISHED);
-		return GWSTATUS_FINISHED_LEVEL;
+		return GWSTATUS_FINISHED_LEVEL;		//the level was finish
 	}
 	it = m_myActors.begin();
 	while (it != m_myActors.end())			//cleans up all actors that died that round
@@ -132,30 +130,13 @@ int StudentWorld::move()
 		if ((*it)->isDead())
 		{
 			delete (*it);
-			it = m_myActors.erase(it);
+			it = m_myActors.erase(it);	//cleanup dead actors after each move tick
 			continue;
 		}
 		it++;
 	}
-	setGameStatText(updateStatusText());
+	setGameStatText(updateStatusText());	//update the status text
 	return GWSTATUS_CONTINUE_GAME;
-}
-bool StudentWorld::ifPersonInFront(double xPos, double yPos)
-{
-	list<Actor*>::iterator it = m_myActors.begin();
-	while (it != m_myActors.end())
-	{
-		if ((*it)->isPerson() && overlaps((*it), xPos, yPos))
-		{
-			return true;
-		}
-		it++;
-	}
-	if (overlaps(m_penelope, xPos, yPos))
-	{
-		return true;
-	}
-	return false;
 }
 string StudentWorld::updateStatusText()
 {
@@ -168,7 +149,7 @@ string StudentWorld::updateStatusText()
 	else
 	{
 		oss.fill('0');
-		oss << "Score: " << '-' << setw(5)<< -getScore() << "  ";
+		oss << "Score: " << '-' << setw(5)<< -getScore() << "  ";	//if the score was negative
 	}
 
 	oss << "Level: " << getLevel() << "  ";
@@ -195,6 +176,119 @@ StudentWorld::~StudentWorld()
 {
 	cleanUp();
 }
+void StudentWorld::addActor(char type, int startX, int startY, Direction dir, StudentWorld* myWorld)
+{
+	Actor* addme;
+	switch (type)
+	{
+	case 'f':	
+		addme = new Flame(startX, startY, dir, myWorld);		//creats a new flame at the specified location/dir and adds to container
+		m_myActors.push_front(addme);
+		break;
+	case 'l':
+		addme = new Landmine(startX, startY, myWorld);		//creates a new landmine at the specified location/dir and adds to container
+		m_myActors.push_front(addme);
+		break;
+	case 'p':
+		addme = new Pit(startX, startY, myWorld);	//creates a new pit at the specified location/dir and adds to container
+		m_myActors.push_front(addme);
+		break;
+	case 'v':
+		addme = new Vomit(startX, startY, dir, myWorld);	//creates a vomit at the specified location/dir and adds to container
+		m_myActors.push_front(addme);
+		break;
+	case 'm':
+		addme = new VaccineGoodies(IID_VACCINE_GOODIE, startX, startY, myWorld);	//creates a vaccineGoodie at the specified location/dir and adds to containers
+		m_myActors.push_front(addme);
+		break;
+	case 'd':
+		addme = new DumbZombie(startX, startY, myWorld);	//creates a dumb zombie at the specified location/ dir and adds to containers
+		m_myActors.push_front(addme);
+		break;
+	case 's':
+		addme = new SmartZombie(startX, startY, myWorld);	//creates a smart zombie at the specified location/dir and adds to containers
+		m_myActors.push_front(addme);
+		break;
+	}
+}
+void StudentWorld::increaseCount(int add, char type)
+{
+	switch (type)
+	{
+	case 'f':
+		m_penelope->addNumFlames(add);	//increases penelopes flame count
+		break;
+	case 'l':
+		m_penelope->addNumLand(add);	//increases penelopes landmine count
+		break;
+	case 'v':
+		m_penelope->addNumVaccine(add);	//increases penelopes vaccine count
+		break;
+	}
+}
+bool StudentWorld::touching(Actor* a1, double xPos, double yPos)	//checks if an actor is touching the specified location
+{
+	if ((a1->getX() <= xPos + SPRITE_WIDTH - 1) &&
+		(a1->getX() + SPRITE_WIDTH - 1 >= xPos) &&
+		(a1->getY() <= yPos + SPRITE_HEIGHT - 1) &&
+		(a1->getY() + SPRITE_HEIGHT - 1 >= yPos))
+		return true;
+	return false;
+}
+bool StudentWorld::overlaps(Actor* with, double xPos, double yPos)	//checks if an actor overlaps with the specified location
+{
+	if (distance(with, xPos, yPos) <= 10)
+		return true;
+	return false;
+}
+bool StudentWorld::overlapsPene(double xPos, double yPos)	//checks if penelope overlaps with the position
+{
+	if (overlaps(m_penelope, xPos, yPos))
+		return true;
+	return false;
+}
+double StudentWorld::distance(Actor* one, double xPos, double yPos)	//checks the distance between an actor and the position
+{
+	double x1 = one->getX() + ((SPRITE_WIDTH - 1) / 2);
+	double y1 = one->getY() + ((SPRITE_HEIGHT - 1) / 2);
+	double x2 = xPos + ((SPRITE_WIDTH - 1) / 2);
+	double y2 = yPos + ((SPRITE_HEIGHT - 1) / 2);
+	double dx = x1 - x2;
+	double dy = y1 - y2;
+	return sqrt((dx*dx) + (dy*dy));	//returns the distance
+}
+double StudentWorld::distanceFromPene(double xPos, double yPos)
+{
+	return distance(m_penelope, xPos, yPos);
+}
+double StudentWorld::distanceFromZombie(double xPos, double yPos)
+{
+	double min = 1000;
+	list<Actor*>::iterator it = m_myActors.begin();
+	while (it != m_myActors.end())
+	{
+		if (!(*it)->isDead() && (*it)->isZombie() && distance((*it), xPos, yPos) < min)
+			min = distance(*it, xPos, yPos);	//sets the min to the distance to the closest zombie
+		it++;
+	}
+	return min;
+}
+double StudentWorld::distanceFromPerson(double xPos, double yPos, double& xCoor, double& yCoor)
+{
+	double min = 1000;
+	list<Actor*>::iterator it = m_myActors.begin();
+	while (it != m_myActors.end())
+	{
+		if (!(*it)->isDead() && (*it)->isPerson() && distance((*it), xPos, yPos) < min)
+		{
+			min = distance(*it, xPos, yPos);	//gets the distance to the closest person
+			xCoor = (*it)->getX();	//gets the coordinates of the closest person
+			yCoor = (*it)->getY();
+		}
+		it++;
+	}
+	return min;
+}
 /*checks if an object can move to the new position*/
 bool StudentWorld::canMove(Actor* src, double xPos, double yPos)		
 {
@@ -209,26 +303,16 @@ bool StudentWorld::canMove(Actor* src, double xPos, double yPos)
 		}
 		it++;
 	}
-	/*implement if they were to run into penelope*/
 	if (src != m_penelope && touching(m_penelope, xPos, yPos) && !m_penelope->isDead())
 		return false;
 	return true;
-}
-bool StudentWorld::touching(Actor* a1, double xPos, double yPos)
-{
-	if ((a1->getX() <= xPos + SPRITE_WIDTH - 1) &&
-		(a1->getX() + SPRITE_WIDTH - 1 >= xPos) &&
-		(a1->getY() <= yPos + SPRITE_HEIGHT - 1) &&
-		(a1->getY() + SPRITE_HEIGHT - 1 >= yPos))
-		return true;
-	return false;
 }
 bool StudentWorld::left(double xPos, double yPos)
 {
 	list<Actor*>::iterator it = m_myActors.begin();
 	while (it != m_myActors.end())
 	{
-		if ((*it)->isPerson() && touching((*it), xPos, yPos))
+		if (!(*it)->isDead()&& (*it)->isPerson() && overlaps((*it), xPos, yPos))	//checks if a person left via the exit
 		{
 			(*it)->setDead();
 			return true;
@@ -239,32 +323,19 @@ bool StudentWorld::left(double xPos, double yPos)
 }
 void StudentWorld::canLeave(double xPos, double yPos)
 {
-	if (touching(m_penelope,xPos, yPos))
-		m_penelope->setCompletion();
+	if (overlaps(m_penelope,xPos, yPos))	//checks if penelope is allowed to leave 
+		m_penelope->setCompletion();	//sets her completion to true
 }
-
 int StudentWorld::citizenCount()
 {
 	return m_numCit;
-}
-bool StudentWorld::overlapsPene(double xPos, double yPos)
-{
-	if (overlaps(m_penelope, xPos, yPos))
-		return true;
-	return false;
-}
-bool StudentWorld::overlaps(Actor* with, double xPos, double yPos)
-{
-	if (distance(with,xPos,yPos) <= 10)
-		return true;
-	return false;
 }
 bool StudentWorld::blockFlame(double xPos, double yPos)
 {
 	list<Actor*>::iterator it = m_myActors.begin();
 	while (it != m_myActors.end())
 	{
-		if ((*it)->blockFlame() && overlaps((*it), xPos, yPos))
+		if (!(*it)->isDead() && (*it)->blockFlame() && overlaps((*it), xPos, yPos))	//checks if a flame is blocked
 			return true;
 		it++;
 	}
@@ -275,58 +346,16 @@ void StudentWorld::infect(double xPos, double yPos)
 	list<Actor*>::iterator it = m_myActors.begin();
 	while (it != m_myActors.end())
 	{
-		if ((*it)->isPerson() && overlaps((*it), xPos, yPos))
+		if (!(*it)->isDead() && (*it)->isPerson() && overlaps((*it), xPos, yPos))
 		{
-			(*it)->setInfected(true);
+			(*it)->setInfected(true);	//infects the person
 		}
 		it++;
 	}
-	if (overlaps(m_penelope, xPos, yPos))
+	if (!m_penelope->isDead() && overlaps(m_penelope, xPos, yPos))
 	{
-		m_penelope->setInfected(true);
+		m_penelope->setInfected(true);	//infects penelope
 	}
-}
-double StudentWorld::distance(Actor* one, double xPos, double yPos)
-{
-	double x1 = one->getX() + ((SPRITE_WIDTH - 1) / 2);
-	double y1 = one->getY() + ((SPRITE_HEIGHT - 1) / 2);
-	double x2 = xPos + ((SPRITE_WIDTH - 1) / 2);
-	double y2 = yPos + ((SPRITE_HEIGHT - 1) / 2);
-	double dx = x1 - x2;
-	double dy = y1 - y2;
-	return sqrt((dx*dx) + (dy*dy));
-}
-double StudentWorld::distanceFromPene(double xPos, double yPos)
-{
-	return distance(m_penelope, xPos, yPos);
-}
-double StudentWorld::distanceFromZombie(double xPos, double yPos)
-{
-	double min = 1000;
-	list<Actor*>::iterator it = m_myActors.begin();
-	while (it != m_myActors.end())
-	{
-		if ((*it)->isZombie() && distance((*it), xPos, yPos) < min)
-			min = distance(*it, xPos, yPos);
-		it++;
-	}
-	return min;
-}
-double StudentWorld::distanceFromPerson(double xPos, double yPos, double& xCoor, double& yCoor)
-{
-	double min = 1000;
-	list<Actor*>::iterator it = m_myActors.begin();
-	while (it != m_myActors.end())
-	{
-		if ((*it)->isPerson() && distance((*it), xPos, yPos) < min)
-		{
-			min = distance(*it, xPos, yPos);
-			xCoor = (*it)->getX();
-			yCoor = (*it)->getY();
-		}
-		it++;
-	}
-	return min;
 }
 bool StudentWorld::stepOnLandmine(double xPos, double yPos)
 {
@@ -334,11 +363,11 @@ bool StudentWorld::stepOnLandmine(double xPos, double yPos)
 	while (it != m_myActors.end())
 	{
 		if (((*it)->isPerson() || (*it)->isZombie()) && overlaps((*it), xPos, yPos) && !(*it)->isDead())
-			return true;
+			return true;	//if a person/zombie is on the landmine, it is triggered
 		it++;
 	}
-	if (overlaps(m_penelope, xPos, yPos))
-		return true;
+	if (!m_penelope->isDead() && overlaps(m_penelope, xPos, yPos))
+		return true;	//if penelope is on a landmine it is triggered
 	return false;
 }
 void StudentWorld::dieByPitOrFlame(double xPos, double yPos)
@@ -348,7 +377,7 @@ void StudentWorld::dieByPitOrFlame(double xPos, double yPos)
 	{
 		if ((*it)->affectedByFlame() && overlaps((*it), xPos, yPos) && !(*it)->isDead())
 		{
-			(*it)->death();
+			(*it)->death();	//calls each objects method for what it does when it dies by flame/pit
 		}
 		it++;
 	}
@@ -356,47 +385,28 @@ void StudentWorld::dieByPitOrFlame(double xPos, double yPos)
 	{
 		if (!m_penelope->isDead())
 		{
-			m_penelope->setDead();
+			m_penelope->setDead();	//kills penelopes
 			playSound(SOUND_PLAYER_DIE);
 			decLives();
 		}
 	}
 }
-void StudentWorld::addActor(char type, int startX, int startY, Direction dir, StudentWorld* myWorld)
+bool StudentWorld::ifPersonInFront(double xPos, double yPos)
 {
-	Actor* addme;
-	switch (type)
+	list<Actor*>::iterator it = m_myActors.begin();
+	while (it != m_myActors.end())
 	{
-	case 'f':
-		addme = new Flame(startX, startY, dir, myWorld);
-		m_myActors.push_front(addme);
-		break;
-	case 'l':
-		addme = new Landmine(startX, startY, myWorld);
-		m_myActors.push_front(addme);
-		break;
-	case 'p':
-		addme = new Pit(startX, startY, myWorld);
-		m_myActors.push_front(addme);
-		break;
-	case 'v':
-		addme = new Vomit(startX, startY, dir, myWorld);
-		m_myActors.push_front(addme);
-		break;
-	case 'm':
-		addme = new VaccineGoodies(IID_VACCINE_GOODIE, startX, startY, myWorld);
-		m_myActors.push_front(addme);
-		break;
-	case 'd':
-		addme = new DumbZombie(startX, startY, myWorld);
-		m_myActors.push_front(addme);
-		break;
-	case 's':
-		addme = new SmartZombie(startX, startY, myWorld);
-		m_myActors.push_front(addme);
-		break;
+		if (!(*it)->isDead() && (*it)->isPerson() && overlaps((*it), xPos, yPos))
+		{
+			return true;	//checks if a person
+		}
+		it++;
 	}
-	
+	if (overlaps(m_penelope, xPos, yPos) && !m_penelope->isDead())
+	{
+		return true;	//or penelope is in front
+	}
+	return false;
 }
 bool StudentWorld::canFlingVaccine(Actor *src, double xPos, double yPos)
 {
@@ -404,11 +414,11 @@ bool StudentWorld::canFlingVaccine(Actor *src, double xPos, double yPos)
 	while (it != m_myActors.end())
 	{
 		if ((*it)!= src && overlaps((*it), xPos, yPos) && !(*it)->isDead())
-			return false;
+			return false;	//if there are any objects in the specified position, return false
 		it++;
 	}
 	if (overlaps(m_penelope, xPos, yPos) && !m_penelope->isDead())
-		return false;
+		return false;	//if penelope is in the specified position, return false
 	return true;
 }
 char StudentWorld::rowMoveToP(Actor* two)
@@ -418,11 +428,11 @@ char StudentWorld::rowMoveToP(Actor* two)
 		if (two->getX() < m_penelope->getX())
 			return 'r'; // means penelope is to the right
 		else
-			return 'l'; // means on the left
+			return 'l'; // means penelope is on the left
 	}
-	else if (two->getX() < m_penelope->getX())	//find relative direction of where penelope is
+	else if (two->getX() < m_penelope->getX())	//find relative direction of where penelope is (to the right)
 		return 'd';
-	else if (two->getX() > m_penelope->getX())
+	else if (two->getX() > m_penelope->getX()) //find relative direction of where penelope is (to the left)
 		return 'a';
 }
 char StudentWorld::colMoveToP(Actor* two)
@@ -434,52 +444,9 @@ char StudentWorld::colMoveToP(Actor* two)
 		else
 			return 'b'; // means penelope below
 	}
-	else if (two->getY() < m_penelope->getY())
+	else if (two->getY() < m_penelope->getY())	//means penelope is relatively above
 		return 'w';
-	else if (two->getY() > m_penelope->getY())
+	else if (two->getY() > m_penelope->getY()) //means penelope is relatively below
 		return 's';
-}
-char StudentWorld::rowMoveToC(Actor* two)
-{
-	if (two->getY() == m_penelope->getY())
-	{
-		if (two->getX() < m_penelope->getX())
-			return 'r'; // means penelope is to the right
-		else
-			return 'l'; // means on the left
-	}
-	else if (two->getX() < m_penelope->getX())	//find relative direction of where penelope is
-		return 'd';
-	else if (two->getX() > m_penelope->getX())
-		return 'a';
-}
-char StudentWorld::colMoveToC(Actor* two)
-{
-	if (two->getX() == m_penelope->getX())
-	{
-		if (two->getY() < m_penelope->getY())
-			return 'u'; // means penelope above
-		else
-			return 'b'; // means penelope below
-	}
-	else if (two->getY() < m_penelope->getY())
-		return 'w';
-	else if (two->getY() > m_penelope->getY())
-		return 's';
-}
-void StudentWorld::increaseCount(int add, char type)
-{
-	switch (type)
-	{
-	case 'f':
-		m_penelope->addNumFlames(add);
-		break;
-	case 'l':
-		m_penelope->addNumLand(add);
-		break;
-	case 'v':
-		m_penelope->addNumVaccine(add);
-		break;
-	}
 }
 
