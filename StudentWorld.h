@@ -28,7 +28,7 @@ public:
 	bool blockFlame(double xPos, double yPos);		//checks if a flame can be created in that direction
 	void canLeave(double xPos, double yPos);		//checks if penelope can leave
 	bool left(double xPos, double yPos);			//checks if a citizen left the game							
-	bool dieByPitOrFlame(double xPos, double yPos);
+	void dieByPitOrFlame(double xPos, double yPos);
 	bool stepOnLandmine(double xPos, double yPos);
 	void infect(double xPos, double yPos);
 	bool ifPersonInFront(double xPos, double yPos);

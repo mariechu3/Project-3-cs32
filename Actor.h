@@ -17,9 +17,10 @@ public:
 	virtual bool isZombie();
 	virtual bool affectedByFlame();
 	virtual bool affectedByVomit();
-	virtual void setOffLandmine(){}
+	//virtual void setOffLandmine(){}
+	virtual bool blockFlame();
 	virtual void setInfected(bool yes) {}
-	virtual void death(){}
+	virtual void death();
 	StudentWorld* getWorld();
 private:
 	bool m_dead;
@@ -106,7 +107,8 @@ class Landmine : public Actor
 public:
 	Landmine(int startX, int startY, StudentWorld* myWorld);
 	virtual void doSomething();
-	virtual void setOffLandmine();
+	void setOffLandmine();
+	virtual void death();
 private:
 	bool active;
 	int safety;
@@ -118,6 +120,7 @@ public:
 	Pit(int startX, int startY, StudentWorld* myWorld);
 	virtual void doSomething();
 	virtual bool affectedByFlame();
+	virtual bool blockFlame();
 private:
 };
 class Flame : public Actor

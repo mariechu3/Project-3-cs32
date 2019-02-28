@@ -54,7 +54,6 @@ int StudentWorld::init()
 			{
 			case Level::empty:  //do nothing
 				break;
-				/*UPDATE DEPTH AND DIR OF ZOMBIES WHEN SPECS ARE UPDATED!*/
 			case Level::citizen:
 				addMe = new Citizen(SPRITE_WIDTH * col, SPRITE_HEIGHT*row, this);			//dynamically allocate a smart zombie at the position indicated by the level txt file 
 				m_myActors.push_front(addMe);
@@ -168,8 +167,8 @@ string StudentWorld::updateStatusText()
 	}
 	else
 	{
-		oss.fill(' ');
-		oss << "Score: " << setw(6)<< getScore() << "  ";
+		oss.fill('0');
+		oss << "Score: " << '-' << setw(5)<< -getScore() << "  ";
 	}
 
 	oss << "Level: " << getLevel() << "  ";
@@ -265,7 +264,7 @@ bool StudentWorld::blockFlame(double xPos, double yPos)
 	list<Actor*>::iterator it = m_myActors.begin();
 	while (it != m_myActors.end())
 	{
-		if (!(*it)->affectedByFlame() && overlaps((*it), xPos, yPos))
+		if ((*it)->blockFlame() && overlaps((*it), xPos, yPos))
 			return true;
 		it++;
 	}
@@ -342,33 +341,14 @@ bool StudentWorld::stepOnLandmine(double xPos, double yPos)
 		return true;
 	return false;
 }
-bool StudentWorld::dieByPitOrFlame(double xPos, double yPos)
+void StudentWorld::dieByPitOrFlame(double xPos, double yPos)
 {
 	list<Actor*>::iterator it = m_myActors.begin();
 	while (it != m_myActors.end())
 	{
 		if ((*it)->affectedByFlame() && overlaps((*it), xPos, yPos) && !(*it)->isDead())
 		{
-			(*it)->setDead();
-			(*it)->setOffLandmine(); // will call the base version of setOffLandmine if it is not a landmine and do nothing
-			if ((*it)->isPerson())
-			{
-				increaseScore(-1000);
-				playSound(SOUND_CITIZEN_DIE);
-			}
-			else if ((*it)->isZombie())
-			{
-				increaseScore(1000);
-				playSound(SOUND_ZOMBIE_DIE);
-			}
-			/*
-			else if(dumbzombie)
-				increaseScore(1000);
-			else if (smart)
-				increaseScore(2000);
-				play dying sound
-			*/
-			//return true;
+			(*it)->death();
 		}
 		it++;
 	}
@@ -380,9 +360,7 @@ bool StudentWorld::dieByPitOrFlame(double xPos, double yPos)
 			playSound(SOUND_PLAYER_DIE);
 			decLives();
 		}
-		//return true;
 	}
-	return false;
 }
 void StudentWorld::addActor(char type, int startX, int startY, Direction dir, StudentWorld* myWorld)
 {

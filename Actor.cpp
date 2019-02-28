@@ -31,6 +31,12 @@ bool Actor::isZombie()
 {
 	return false;
 }
+bool Actor::blockFlame()
+{
+	if (affectedByFlame())
+		return false;
+	return true;
+}
 bool Actor::affectedByFlame()
 {
 	return true;
@@ -134,11 +140,9 @@ void Penelope::doSomething()
 	{
 		setDead();
 		getWorld()->decLives();
-		//implement code to turn her into zombie;
 		getWorld()->playSound(SOUND_PLAYER_DIE);
 		return;
 	}
-	/*implement flamethrower, landmine, vaccine*/
 	int ch;
 	if (getWorld()->getKey(ch))
 	{
@@ -231,6 +235,12 @@ Citizen::Citizen(int startX, int startY, StudentWorld* myWorld)
 {
 	m_paralysis = 0;
 	firstInfection = true;
+}
+void Citizen::death()
+{
+	setDead();
+	getWorld()->playSound(SOUND_CITIZEN_DIE);
+	getWorld()->increaseScore(-1000);
 }
 void Citizen::setInfected(bool yes)
 {
@@ -606,6 +616,12 @@ DumbZombie::DumbZombie(int startX, int startY, StudentWorld* myWorld)
 {
 
 }
+void DumbZombie::death()
+{
+	setDead();
+	getWorld()->playSound(SOUND_ZOMBIE_DIE);
+	getWorld()->increaseScore(1000);
+}
 bool DumbZombie::differentMovements()
 {
 	return false;
@@ -614,6 +630,12 @@ SmartZombie::SmartZombie(int startX, int startY, StudentWorld* myWorld)
 	:Zombie(startX, startY, myWorld)
 {
 
+}
+void SmartZombie::death()
+{
+	setDead();
+	getWorld()->playSound(SOUND_ZOMBIE_DIE);
+	getWorld()->increaseScore(2000);
 }
 bool SmartZombie::differentMovements()
 {
@@ -770,12 +792,17 @@ void Landmine::doSomething()
 		}
 	}
 	if (active && getWorld()->stepOnLandmine(getX(), getY()))
-		setOff = true;
-	if (active && setOff)
-	{
+		//setOff = true;
+	//if (active && setOff)
+	//{
 		setOffLandmine();
-	}
+//	}
 };
+void Landmine::death()
+{
+	setDead();
+	setOffLandmine();
+}
 void Landmine::setOffLandmine()
 {
 	getWorld()->playSound(SOUND_LANDMINE_EXPLODE);
@@ -795,6 +822,10 @@ Pit::Pit(int startX, int startY, StudentWorld* myWorld)
 {
 }
 bool Pit::affectedByFlame()
+{
+	return false;
+}
+bool Pit::blockFlame()
 {
 	return false;
 }
