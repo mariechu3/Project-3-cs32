@@ -779,7 +779,6 @@ bool SmartZombie::differentMovements()
 				setDirection(down);
 				return true;
 			}
-
 		}
 	}
 	return false;
@@ -817,16 +816,29 @@ void Landmine::setOffLandmine()
 {
 	getWorld()->playSound(SOUND_LANDMINE_EXPLODE); 
 	//creates the fire in appropriate spots with respect to the dead landmine
-	for(double i = 0; i < 3; i++)
-		getWorld()->addActor('f', getX() - SPRITE_WIDTH + (i*SPRITE_WIDTH), getY() + SPRITE_HEIGHT, up, getWorld());	//row 1 of fire
-	for (double i = 0; i < 3; i++)
-		getWorld()->addActor('f', getX() - SPRITE_WIDTH + (i*SPRITE_WIDTH), getY(), up, getWorld());   //row 2 of fire
-	for (double i = 0; i < 3; i++)
-		getWorld()->addActor('f', getX() - SPRITE_WIDTH + (i*SPRITE_WIDTH), getY() -SPRITE_HEIGHT, up, getWorld());	//row 3 of fire
+	if (!getWorld()->blockFlame(getX() - SPRITE_WIDTH, getY() + SPRITE_HEIGHT))
+		getWorld()->addActor('f', getX() - SPRITE_WIDTH, getY() + SPRITE_HEIGHT, up, getWorld());
+	if (!getWorld()->blockFlame(getX(), getY() + SPRITE_HEIGHT))
+		getWorld()->addActor('f', getX(), getY() + SPRITE_HEIGHT, up, getWorld());
+	if (!getWorld()->blockFlame(getX() + SPRITE_WIDTH, getY() + SPRITE_HEIGHT))
+		getWorld()->addActor('f', getX() + SPRITE_WIDTH, getY() + SPRITE_HEIGHT, up, getWorld());
+	if (!getWorld()->blockFlame(getX() - SPRITE_WIDTH, getY()))
+		getWorld()->addActor('f', getX() - SPRITE_WIDTH, getY(), up, getWorld());
+	if (!getWorld()->blockFlame(getX(), getY()))
+		getWorld()->addActor('f', getX(), getY(), up, getWorld());
+	if (!getWorld()->blockFlame(getX() + SPRITE_WIDTH, getY()))
+		getWorld()->addActor('f', getX() + SPRITE_WIDTH, getY(), up, getWorld());
+	if (!getWorld()->blockFlame(getX() - SPRITE_WIDTH, getY() - SPRITE_HEIGHT))
+		getWorld()->addActor('f', getX() - SPRITE_WIDTH, getY() - SPRITE_HEIGHT, up, getWorld());
+	if (!getWorld()->blockFlame(getX(), getY() - SPRITE_HEIGHT))
+		getWorld()->addActor('f', getX(), getY() - SPRITE_HEIGHT, up, getWorld());
+	if (!getWorld()->blockFlame(getX() + SPRITE_WIDTH, getY() - SPRITE_HEIGHT))
+		getWorld()->addActor('f', getX() + SPRITE_WIDTH, getY() - SPRITE_HEIGHT, up, getWorld());
 	getWorld()->addActor('p', getX(), getY(), right, getWorld()); //creates a pit in place of the dead landmine
 	setDead();
 	active = false;
 }
+
 ////////////////PIT IMPLEMENTATIONS////////////////////
 Pit::Pit(double startX, double startY, StudentWorld* myWorld)
 	: Actor(IID_PIT, startX, startY, right, 0 , myWorld)

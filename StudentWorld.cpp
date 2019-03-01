@@ -26,6 +26,7 @@ int StudentWorld::init()
 {
 	string myLevel = to_string(getLevel());			//stores the level into myLevel
 	string levelFile = "level0" + myLevel +".txt"; 
+	//string levelFile = "level03.txt";
 	Level lev(assetPath());
 	Level::LoadResult result = lev.loadLevel(levelFile);		//loads the correct level file
 	if (getLevel() == 99 || result == Level::load_fail_file_not_found)
